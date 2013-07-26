@@ -8,8 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.eclipse.jgit.api.Git;
@@ -36,8 +38,46 @@ import org.eclipse.jgit.util.FileUtils;
  */
 public class RepositoryAccess {
 
-	public static final int OLD = 0;
-	public static final int RENEW = 1;
+	/**
+	 * The Enum Rule.
+	 * 
+	 * The rule for accessing the repository: using the old repository if
+	 * existing or clone the latest one.
+	 */
+	public enum Rule {
+		OLD(0), NEW(1), UNKNOWN(-1);
+
+		private int value;
+
+		private Rule(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+
+		private static final Map<Integer, Rule> intToRuleMap = new HashMap<Integer, Rule>();
+		static {
+			for (Rule rule : Rule.values()) {
+				intToRuleMap.put(rule.value, rule);
+			}
+		}
+
+		/**
+		 * Convert an int value to the Enum Rule.
+		 * 
+		 * @param i
+		 *            the int value
+		 * @return the Enum Rule
+		 */
+		public static Rule fromInt(int i) {
+			Rule rule = intToRuleMap.get(Integer.valueOf(i));
+			if (rule == null)
+				return Rule.UNKNOWN;
+			return rule;
+		}
+	}
 
 	/** The Constant rootPath for storing local git repositories. */
 	private static final String rootPath = System.getProperty("user.home")
@@ -58,12 +98,12 @@ public class RepositoryAccess {
 	 * @throws TransportException
 	 * @throws InvalidRemoteException
 	 */
-	public RepositoryAccess(final String url, final int rule)
+	public RepositoryAccess(final String url, final Rule rule)
 			throws IOException, InvalidRemoteException, TransportException,
 			NullPointerException, GitAPIException {
 		this.url = url;
 		File gitDir = new File(rootPath + getRepositoryName());
-		if (rule == OLD) {
+		if (rule == Rule.OLD) {
 			if (gitDir.exists()) {
 				Git git;
 				git = Git.open(gitDir);
@@ -87,8 +127,7 @@ public class RepositoryAccess {
 		Git.cloneRepository().setURI(url)
 				.setDirectory(new File(rootPath + getRepositoryName())).call();
 		File gitDir = new File(rootPath + getRepositoryName());
-		Git git;
-		git = Git.open(gitDir);
+		Git git = Git.open(gitDir);
 		repository = git.getRepository();
 	}
 

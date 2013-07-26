@@ -22,26 +22,36 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
 public final class ClassVisitor extends VoidVisitorAdapter<Void> {
 
 	/**
-	 * The package declaration is retreive from the complilation unit of a java
-	 * file.
+	 * Package declaration is retrieve from the compilation unit of a java file.
 	 */
 	private PackageDeclaration packageDeclaration;
 
-	private UserClass userClass;
-
 	/**
-	 * The import packages are retreive from the complilation unit of a java
-	 * file.
+	 * Import packages are retrieve from the compilation unit of a java file.
 	 */
 	private List<ImportDeclaration> imports;
+
+	private UserClass userClass;
 
 	public ClassVisitor() {
 	}
 
+	/**
+	 * Sets the package declarations for the class visitor.
+	 * 
+	 * @param packageDeclaration
+	 *            package declarations from the compilation unit, may be null
+	 */
 	public void setPkgDeclaration(final PackageDeclaration packageDeclaration) {
 		this.packageDeclaration = packageDeclaration;
 	}
 
+	/**
+	 * Sets the imports for the class visitor.
+	 * 
+	 * @param imports
+	 *            imports from the compilation unit, may be null
+	 */
 	public void setImports(final List<ImportDeclaration> imports) {
 		this.imports = imports;
 	}
@@ -61,12 +71,25 @@ public final class ClassVisitor extends VoidVisitorAdapter<Void> {
 		}
 	}
 
+	/**
+	 * Gets the userClass from the current class visitor.
+	 * 
+	 * @return the user class
+	 */
 	public UserClass getUserClass() {
 		return userClass;
 	}
 
+	/**
+	 * The Class FieldVisitor.
+	 * 
+	 * Counts instance variables in the class (excluding primitive types).
+	 */
 	private static class FieldVisitor extends VoidVisitorAdapter<Void> {
 
+		/**
+		 * Fields of the class visited, name as key and type as value in the map
+		 */
 		HashMap<String, String> fields;
 
 		public FieldVisitor() {

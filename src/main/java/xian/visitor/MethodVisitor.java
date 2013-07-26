@@ -16,16 +16,16 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
 
 /**
  * The Class MethodVisitor.
+ * 
+ * Used by a Class Visitor.
  */
 public class MethodVisitor extends VoidVisitorAdapter<Void> {
 
-	/**
-	 * The method list.
-	 * 
-	 * Store a list methods defined in the class visited.
-	 */
 	private List<UserMethod> methodList;
 
+	/**
+	 * Instantiates a new method visitor.
+	 */
 	public MethodVisitor() {
 		methodList = new ArrayList<UserMethod>();
 	}
@@ -68,12 +68,23 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 
 	}
 
+	/**
+	 * Gets the method list.
+	 * 
+	 * @return method list of the current class, won't be null
+	 */
 	public List<UserMethod> getMethodList() {
 		return methodList;
 	}
 
+	/**
+	 * The Class ParameterVisitor.
+	 * 
+	 * Counts parameters in the method visited (excluding primitive types).
+	 */
 	private final class ParameterVisitor extends VoidVisitorAdapter<Void> {
 
+		/** The parameters, name as key and type as value, won't be null. */
 		private HashMap<String, String> parameters;
 
 		public ParameterVisitor() {
@@ -103,6 +114,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	private final class VariableVisitor extends VoidVisitorAdapter<Void> {
 
+		/** The variables, name as key and type as value, won't be null. */
 		private HashMap<String, String> variables;
 
 		public VariableVisitor() {
@@ -130,11 +142,15 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	/**
 	 * The Class CallVisitor.
 	 * 
-	 * Counts method calls within a method, the methodcall may contain nested
+	 * Counts method calls within a method, the method call may contain nested
 	 * call.
 	 */
 	private final class CallVisitor extends VoidVisitorAdapter<Void> {
 
+		/**
+		 * The calls is the whole call expression. It will be analyzed when a
+		 * symbol table is built.
+		 */
 		private List<MethodCallExpr> calls;
 
 		public CallVisitor() {

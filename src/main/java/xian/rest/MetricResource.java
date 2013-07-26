@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import xian.git.RepositoryAccess;
+import xian.git.RepositoryAccess.Rule;
 
 @Path("/metric")
 public class MetricResource {
@@ -26,7 +27,7 @@ public class MetricResource {
 		try {
 			String decodedUrl = URLDecoder.decode(url, "UTF-8");
 		
-			RepositoryAccess rm = new RepositoryAccess(decodedUrl, rule);
+			RepositoryAccess rm = new RepositoryAccess(decodedUrl, Rule.fromInt(rule));
 			return Response.ok(String.valueOf(rm.getCommits().size())).build();
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -45,7 +46,7 @@ public class MetricResource {
 	public Response getSecond() {
 		try {
 			RepositoryAccess rm = new RepositoryAccess(
-					"https://github.com/xetorthio/jedis.git", RepositoryAccess.OLD);
+					"https://github.com/xetorthio/jedis.git", Rule.OLD);
 			return Response
 					.ok(String.valueOf(rm.getJavaInputStream(
 							rm.getCommits().get(0)).size())).build();

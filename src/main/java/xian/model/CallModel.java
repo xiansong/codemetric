@@ -102,26 +102,56 @@ public class CallModel {
 		}
 	}
 
+	/**
+	 * Gets the caller.
+	 * 
+	 * @return the caller name
+	 */
 	public String getCaller() {
 		return caller;
 	}
 
+	/**
+	 * Gets the callee.
+	 * 
+	 * @return the callee name
+	 */
 	public String getCallee() {
 		return callee;
 	}
 
+	/**
+	 * Gets the caller cyclo.
+	 * 
+	 * @return the caller Cyclomatic number
+	 */
 	public int getCallerCyclo() {
 		return callerCyclo;
 	}
 
+	/**
+	 * Gets the caller volume.
+	 * 
+	 * @return the caller Halstead volume
+	 */
 	public double getCallerVolume() {
 		return callerVolume;
 	}
 
+	/**
+	 * Gets the callee cyclo.
+	 * 
+	 * @return the callee Cyclomatic number
+	 */
 	public int getCalleeCyclo() {
 		return calleeCyclo;
 	}
 
+	/**
+	 * Gets the callee volume.
+	 * 
+	 * @return the callee Halstead volume
+	 */
 	public double getCalleeVolume() {
 		return calleeVolume;
 	}

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import xian.git.RepositoryAccess;
+import xian.git.RepositoryAccess.Rule;
 import xian.model.CallModel;
 import xian.model.UserClass;
 import xian.model.UserMethod;
@@ -18,7 +19,7 @@ public class CommitVisitor {
 	static List<UserClass> ucs = new ArrayList<UserClass>();
 
 	public void access(String url) throws Exception {
-		RepositoryAccess ra = new RepositoryAccess(url, RepositoryAccess.OLD);
+		RepositoryAccess ra = new RepositoryAccess(url, Rule.OLD);
 		for (Iterator<CompilationUnit> itr = ra.getJavaInputStream(
 				ra.getCommits().get(0)).iterator(); itr.hasNext();) {
 			visit(itr.next());
