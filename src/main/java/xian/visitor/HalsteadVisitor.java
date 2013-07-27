@@ -1,5 +1,8 @@
 package xian.visitor;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+
 import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.expr.AssignExpr;
 import japa.parser.ast.expr.BinaryExpr;
@@ -9,43 +12,47 @@ import japa.parser.ast.expr.UnaryExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
-import java.util.Map;
-
-import com.google.common.collect.Maps;
-
-/** 
- * Provide access to Halstead measures targeting at method level.* 
+/**
+ * The Class HalsteadVisitor.
+ * 
+ * Check unique operators, operands and total number of operators and total
+ * number of operands.
  */
 public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 
+	/**
+	 * These two operators have not been defined as operators in javaparser api
+	 */
 	public static enum ExtraOperator {
 
-		instanceOf, // instanceof
+		/** The instance of. */
+		instanceOf,
 
-		ternary // :?
+		/** The ternary [:?]. */
+		ternary
 	}
 
 	/** The oprAsgn stores unique assign operators and their frequencies. */
-	private Map<AssignExpr.Operator, Integer> oprAsgn;
+	private TObjectIntMap<AssignExpr.Operator> oprAsgn;
 
 	/** The oprBin stores unique binary operators and their frequencies. */
-	private Map<BinaryExpr.Operator, Integer> oprBin;
+	private TObjectIntMap<BinaryExpr.Operator> oprBin;
 
 	/** The oprUnary stores unique unary operators and their frequencies. */
-	private Map<UnaryExpr.Operator, Integer> oprUnary;
+	private TObjectIntMap<UnaryExpr.Operator> oprUnary;
 
 	/** The extraOpr stores unique extra operators and their frequencies. */
-	private Map<ExtraOperator, Integer> extraOpr;
+	private TObjectIntMap<ExtraOperator> extraOpr;
 
-	/** The opd stores unique operands and their frequencies. */
-	private Map<String, Integer> opd;
+	/** The opd stores hashcode of unique operands and their frequencies. */
+	private TObjectIntMap<String> opd;
 
 	public HalsteadVisitor() {
-		oprAsgn = Maps.newEnumMap(AssignExpr.Operator.class);
-		oprBin = Maps.newEnumMap(BinaryExpr.Operator.class);
-		oprUnary = Maps.newEnumMap(UnaryExpr.Operator.class);
-		extraOpr = Maps.newEnumMap(ExtraOperator.class);
-		opd = Maps.newHashMap();
+		oprAsgn = new TObjectIntHashMap<AssignExpr.Operator>();
+		oprBin = new TObjectIntHashMap<BinaryExpr.Operator>();
+		oprUnary = new TObjectIntHashMap<UnaryExpr.Operator>();
+		extraOpr = new TObjectIntHashMap<ExtraOperator>();
+		opd = new TObjectIntHashMap<String>();
 	}
 
 	/**
@@ -55,18 +62,8 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	public void visit(final VariableDeclarationExpr n, final Void arg) {
 		for (VariableDeclarator vd : n.getVars()) {
 			if (vd.getInit() != null) {
-				if (oprAsgn.containsKey(AssignExpr.Operator.assign)) {
-					oprAsgn.put(AssignExpr.Operator.assign,
-							oprAsgn.get(AssignExpr.Operator.assign) + 1);
-				} else {
-					oprAsgn.put(AssignExpr.Operator.assign, 1);
-				}
-				if (opd.containsKey(vd.getId().getName())) {
-					opd.put(vd.getId().getName(),
-							opd.get(vd.getId().getName()) + 1);
-				} else {
-					opd.put(vd.getId().getName(), 1);
-				}
+				oprAsgn.adjustOrPutValue(AssignExpr.Operator.assign, 1, 1);
+				opd.adjustOrPutValue(vd.getId().getName(), 1, 1);
 				vd.accept(this, arg);
 			}
 
@@ -79,23 +76,9 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final AssignExpr n, final Void arg) {
-		if (oprAsgn.containsKey(n.getOperator())) {
-			oprAsgn.put(n.getOperator(), oprAsgn.get(n.getOperator()) + 1);
-		} else {
-			oprAsgn.put(n.getOperator(), 1);
-		}
-		if (opd.containsKey(n.getTarget().toString())) {
-			opd.put(n.getTarget().toString(),
-					opd.get(n.getTarget().toString()) + 1);
-		} else {
-			opd.put(n.getTarget().toString(), 1);
-		}
-		if (opd.containsKey(n.getValue().toString())) {
-			opd.put(n.getValue().toString(),
-					opd.get(n.getValue().toString()) + 1);
-		} else {
-			opd.put(n.getValue().toString(), 1);
-		}
+		oprAsgn.adjustOrPutValue(n.getOperator(), 1, 1);
+		opd.adjustOrPutValue(n.getTarget().toString(), 1, 1);
+		opd.adjustOrPutValue(n.getValue().toString(), 1, 1);
 		n.getTarget().accept(this, arg);
 		n.getValue().accept(this, arg);
 	}
@@ -106,22 +89,9 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final BinaryExpr n, final Void arg) {
-		if (oprBin.containsKey(n.getOperator())) {
-			oprBin.put(n.getOperator(), oprBin.get(n.getOperator()) + 1);
-		} else {
-			oprBin.put(n.getOperator(), 1);
-		}
-		if (opd.containsKey(n.getLeft().toString())) {
-			opd.put(n.getLeft().toString(), opd.get(n.getLeft().toString()) + 1);
-		} else {
-			opd.put(n.getLeft().toString(), 1);
-		}
-		if (opd.containsKey(n.getRight().toString())) {
-			opd.put(n.getRight().toString(),
-					opd.get(n.getRight().toString()) + 1);
-		} else {
-			opd.put(n.getRight().toString(), 1);
-		}
+		oprBin.adjustOrPutValue(n.getOperator(), 1, 1);
+		opd.adjustOrPutValue(n.getLeft().toString(), 1, 1);
+		opd.adjustOrPutValue(n.getRight().toString(), 1, 1);
 		n.getLeft().accept(this, arg);
 		n.getRight().accept(this, arg);
 	}
@@ -132,16 +102,8 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final UnaryExpr n, final Void arg) {
-		if (oprUnary.containsKey(n.getOperator())) {
-			oprUnary.put(n.getOperator(), oprUnary.get(n.getOperator()) + 1);
-		} else {
-			oprUnary.put(n.getOperator(), 1);
-		}
-		if (opd.containsKey(n.getExpr().toString())) {
-			opd.put(n.getExpr().toString(), opd.get(n.getExpr().toString()) + 1);
-		} else {
-			opd.put(n.getExpr().toString(), 1);
-		}
+		oprUnary.adjustOrPutValue(n.getOperator(), 1, 1);
+		opd.adjustOrPutValue(n.getExpr().toString(), 1, 1);
 		n.getExpr().accept(this, arg);
 	}
 
@@ -150,12 +112,7 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final ConditionalExpr n, final Void arg) {
-		if (extraOpr.containsKey(ExtraOperator.ternary)) {
-			extraOpr.put(ExtraOperator.ternary,
-					extraOpr.get(ExtraOperator.ternary) + 1);
-		} else {
-			extraOpr.put(ExtraOperator.ternary, 1);
-		}
+		extraOpr.adjustOrPutValue(ExtraOperator.ternary, 1, 1);
 		n.getCondition().accept(this, arg);
 		n.getElseExpr().accept(this, arg);
 		n.getThenExpr().accept(this, arg);
@@ -166,29 +123,14 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final InstanceOfExpr n, final Void arg) {
-		if (extraOpr.containsKey(ExtraOperator.instanceOf)) {
-			extraOpr.put(ExtraOperator.instanceOf,
-					extraOpr.get(ExtraOperator.instanceOf) + 1);
-		} else {
-			extraOpr.put(ExtraOperator.instanceOf, 1);
-		}
+		extraOpr.adjustOrPutValue(ExtraOperator.instanceOf, 1, 1);
 	}
 
-	/**
-	 * Gets the unique operators.
-	 * 
-	 * @return the unique operators
-	 */
 	public int getUniqueOperators() {
 		return oprAsgn.size() + oprBin.size() + oprUnary.size()
 				+ extraOpr.size();
 	}
 
-	/**
-	 * Gets the total operators.
-	 * 
-	 * @return the total operators
-	 */
 	public int getTotalOperators() {
 		int total = 0;
 		for (Integer i : oprAsgn.values()) {

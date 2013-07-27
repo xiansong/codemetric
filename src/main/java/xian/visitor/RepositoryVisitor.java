@@ -19,8 +19,8 @@ public class RepositoryVisitor {
 		// TODO Auto-generated method stub
 		RepositoryAccess ra = new RepositoryAccess("https://github.com/xetorthio/jedis.git", Rule.OLD);
 		int size = ra.getCommits().size();
-		System.out.println(size);
-		System.out.println(ra.getJavaCompilationUnit(ra.getCommits().get(0)).size());
+		
+		long t1 = System.currentTimeMillis();
 		ExecutorService service = Executors.newFixedThreadPool(4);
 		List<Future<CommitData>> futures = Lists.newArrayListWithCapacity(size);
 		
@@ -32,6 +32,7 @@ public class RepositoryVisitor {
 			System.out.println(f.get().getCms().size());
 		}
 		service.shutdown();
+		System.out.println((System.currentTimeMillis()-t1));
 	}
 
 }
