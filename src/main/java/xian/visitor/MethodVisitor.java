@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 /**
  * The Class MethodVisitor.
  */
-public class MethodVisitor extends VoidVisitorAdapter<Void> {
+public final class MethodVisitor extends VoidVisitorAdapter<Void> {
 
 	private List<UserMethod> methodList;
 
@@ -69,7 +69,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	 * 
 	 * Counts parameters in the method visited (excluding primitive types).
 	 */
-	private final class ParameterVisitor extends VoidVisitorAdapter<Void> {
+	private static final class ParameterVisitor extends VoidVisitorAdapter<Void> {
 
 		/** The parameters, name as key and type as value, won't be null. */
 		private Map<String, String> parameters;
@@ -99,7 +99,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	 * 
 	 * Counts local variable (excluding primitive types).
 	 */
-	private final class VariableVisitor extends VoidVisitorAdapter<Void> {
+	private static final class VariableVisitor extends VoidVisitorAdapter<Void> {
 
 		/** The variables, name as key and type as value, won't be null. */
 		private Map<String, String> variables;
@@ -132,7 +132,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	 * Counts method calls within a method, the method call may contain nested
 	 * call.
 	 */
-	private final class CallVisitor extends VoidVisitorAdapter<Void> {
+	private static final class CallVisitor extends VoidVisitorAdapter<Void> {
 
 		/**
 		 * The calls is the whole call expression. It will be analyzed when a

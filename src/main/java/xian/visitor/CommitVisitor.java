@@ -6,19 +6,21 @@ import japa.parser.ast.expr.MethodCallExpr;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import xian.model.CallModel;
 import xian.model.CommitData;
 import xian.model.UserClass;
 import xian.model.UserMethod;
 
-public class CommitVisitor implements Callable<CommitData> {
+public final class CommitVisitor implements Callable<CommitData> {
 
 	private List<UserClass> ucs = Lists.newArrayList();
-	private List<CallModel> cms = Lists.newArrayList();
+	private Set<CallModel> cms = Sets.newHashSet();
 
 	public CommitVisitor(List<CompilationUnit> cus) {
 		for (Iterator<CompilationUnit> itr = cus.iterator(); itr.hasNext();) {
@@ -48,9 +50,7 @@ public class CommitVisitor implements Callable<CommitData> {
 				for (MethodCallExpr mc : um.getCalls()) {
 					CallModel cm = checkCallModel(mc, um, uc);
 					if (cm != null) {
-						if (!cms.contains(cm)) {
-							cms.add(cm);
-						}
+						cms.add(cm);
 					}
 				}
 

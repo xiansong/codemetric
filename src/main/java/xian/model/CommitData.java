@@ -1,16 +1,17 @@
 package xian.model;
 
 import java.util.List;
+import java.util.Set;
 
-public class CommitData {
+public final class CommitData {
 	private List<UserClass> ucs;
-	private List<CallModel> cms;
+	private Set<CallModel> cms;
 
-	public List<CallModel> getCms() {
+	public Set<CallModel> getCms() {
 		return cms;
 	}
 
-	public void setCms(final List<CallModel> cms) {
+	public void setCms(final Set<CallModel> cms) {
 		this.cms = cms;
 	}
 

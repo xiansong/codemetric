@@ -24,7 +24,7 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
  * 
  * Visit a single method declaration.
  */
-public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
+public final class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 
 	/** The Cyclomatic complexity for a method, 1 is for entry of the method. */
 	private int number = 1;

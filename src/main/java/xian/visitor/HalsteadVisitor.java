@@ -18,7 +18,7 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
  * Check unique operators, operands and total number of operators and total
  * number of operands.
  */
-public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
+public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 
 	/**
 	 * These two operators have not been defined as operators in javaparser api

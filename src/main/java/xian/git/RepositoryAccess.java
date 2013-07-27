@@ -37,7 +37,7 @@ import com.google.common.collect.Lists;
  * 
  * Create a local repository for access.
  */
-public class RepositoryAccess {
+public final class RepositoryAccess {
 
 	/**
 	 * The Enum Rule.
@@ -59,6 +59,7 @@ public class RepositoryAccess {
 		}
 
 		private static final Map<Integer, Rule> intToRuleMap = new HashMap<Integer, Rule>();
+		
 		static {
 			for (Rule rule : Rule.values()) {
 				intToRuleMap.put(rule.value, rule);
@@ -179,7 +180,6 @@ public class RepositoryAccess {
 			}
 		}
 		return filesList;
-
 	}
 
 }

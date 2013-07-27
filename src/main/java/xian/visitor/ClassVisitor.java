@@ -57,7 +57,7 @@ public final class ClassVisitor extends VoidVisitorAdapter<Void> {
 	}
 
 	/** The Class FieldVisitor. */
-	private static class FieldVisitor extends VoidVisitorAdapter<Void> {
+	private static final class FieldVisitor extends VoidVisitorAdapter<Void> {
 
 		private Map<String, String> fields;
 
