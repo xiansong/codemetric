@@ -2,6 +2,7 @@ package xian.visitor;
 
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 
 import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.expr.AssignExpr;
@@ -12,49 +13,33 @@ import japa.parser.ast.expr.UnaryExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
-/**
- * The Class HalsteadVisitor.
- * 
- * Check unique operators, operands and total number of operators and total
- * number of operands. Provide access to Halstead measures targeting at method
- * level.
- * 
- * Visit a single method.
+/** 
+ * Provide access to Halstead measures targeting at method level.* 
  */
 public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 
-	/**
-	 * The Enum ExtraOperator.
-	 * 
-	 * These two operators have not been defined as operators in javaparser api
-	 */
 	public static enum ExtraOperator {
 
-		/** The instance of. */
 		instanceOf, // instanceof
 
-		/** The ternary. */
 		ternary // :?
 	}
 
 	/** The oprAsgn stores unique assign operators and their frequencies. */
-	private EnumMap<AssignExpr.Operator, Integer> oprAsgn;
+	private Map<AssignExpr.Operator, Integer> oprAsgn;
 
 	/** The oprBin stores unique binary operators and their frequencies. */
-	private EnumMap<BinaryExpr.Operator, Integer> oprBin;
+	private Map<BinaryExpr.Operator, Integer> oprBin;
 
 	/** The oprUnary stores unique unary operators and their frequencies. */
-	private EnumMap<UnaryExpr.Operator, Integer> oprUnary;
+	private Map<UnaryExpr.Operator, Integer> oprUnary;
 
 	/** The extraOpr stores unique extra operators and their frequencies. */
-	private EnumMap<ExtraOperator, Integer> extraOpr;
+	private Map<ExtraOperator, Integer> extraOpr;
 
-	/** The opd stores hashcode of unique operands and their frequencies. */
-	private HashMap<Integer, Integer> opd;
+	/** The opd stores unique operands and their frequencies. */
+	private Map<String, Integer> opd;
 
-	/**
-	 * Instantiates a new Halstead visitor.
-	 */
 	public HalsteadVisitor() {
 		oprAsgn = new EnumMap<AssignExpr.Operator, Integer>(
 				AssignExpr.Operator.class);
@@ -63,7 +48,7 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 		oprUnary = new EnumMap<UnaryExpr.Operator, Integer>(
 				UnaryExpr.Operator.class);
 		extraOpr = new EnumMap<ExtraOperator, Integer>(ExtraOperator.class);
-		opd = new HashMap<Integer, Integer>();
+		opd = new HashMap<String, Integer>();
 	}
 
 	/**
@@ -79,11 +64,11 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 				} else {
 					oprAsgn.put(AssignExpr.Operator.assign, 1);
 				}
-				if (opd.containsKey(vd.getId().hashCode())) {
-					opd.put(vd.getId().hashCode(),
-							opd.get(vd.getId().hashCode()) + 1);
+				if (opd.containsKey(vd.getId().getName())) {
+					opd.put(vd.getId().getName(),
+							opd.get(vd.getId().getName()) + 1);
 				} else {
-					opd.put(vd.getId().hashCode(), 1);
+					opd.put(vd.getId().getName(), 1);
 				}
 				vd.accept(this, arg);
 			}
@@ -102,17 +87,17 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 		} else {
 			oprAsgn.put(n.getOperator(), 1);
 		}
-		if (opd.containsKey(n.getTarget().hashCode())) {
-			opd.put(n.getTarget().hashCode(),
-					opd.get(n.getTarget().hashCode()) + 1);
+		if (opd.containsKey(n.getTarget().toString())) {
+			opd.put(n.getTarget().toString(),
+					opd.get(n.getTarget().toString()) + 1);
 		} else {
-			opd.put(n.getTarget().hashCode(), 1);
+			opd.put(n.getTarget().toString(), 1);
 		}
-		if (opd.containsKey(n.getValue().hashCode())) {
-			opd.put(n.getValue().hashCode(),
-					opd.get(n.getValue().hashCode()) + 1);
+		if (opd.containsKey(n.getValue().toString())) {
+			opd.put(n.getValue().toString(),
+					opd.get(n.getValue().toString()) + 1);
 		} else {
-			opd.put(n.getValue().hashCode(), 1);
+			opd.put(n.getValue().toString(), 1);
 		}
 		n.getTarget().accept(this, arg);
 		n.getValue().accept(this, arg);
@@ -129,16 +114,16 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 		} else {
 			oprBin.put(n.getOperator(), 1);
 		}
-		if (opd.containsKey(n.getLeft().hashCode())) {
-			opd.put(n.getLeft().hashCode(), opd.get(n.getLeft().hashCode()) + 1);
+		if (opd.containsKey(n.getLeft().toString())) {
+			opd.put(n.getLeft().toString(), opd.get(n.getLeft().toString()) + 1);
 		} else {
-			opd.put(n.getLeft().hashCode(), 1);
+			opd.put(n.getLeft().toString(), 1);
 		}
-		if (opd.containsKey(n.getRight().hashCode())) {
-			opd.put(n.getRight().hashCode(),
-					opd.get(n.getRight().hashCode()) + 1);
+		if (opd.containsKey(n.getRight().toString())) {
+			opd.put(n.getRight().toString(),
+					opd.get(n.getRight().toString()) + 1);
 		} else {
-			opd.put(n.getRight().hashCode(), 1);
+			opd.put(n.getRight().toString(), 1);
 		}
 		n.getLeft().accept(this, arg);
 		n.getRight().accept(this, arg);
@@ -155,10 +140,10 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 		} else {
 			oprUnary.put(n.getOperator(), 1);
 		}
-		if (opd.containsKey(n.getExpr().hashCode())) {
-			opd.put(n.getExpr().hashCode(), opd.get(n.getExpr().hashCode()) + 1);
+		if (opd.containsKey(n.getExpr().toString())) {
+			opd.put(n.getExpr().toString(), opd.get(n.getExpr().toString()) + 1);
 		} else {
-			opd.put(n.getExpr().hashCode(), 1);
+			opd.put(n.getExpr().toString(), 1);
 		}
 		n.getExpr().accept(this, arg);
 	}
@@ -224,20 +209,10 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 		return total;
 	}
 
-	/**
-	 * Gets the unique operands.
-	 * 
-	 * @return the unique operands
-	 */
 	public int getUniqueOperands() {
 		return opd.size();
 	}
 
-	/**
-	 * Gets the total operands.
-	 * 
-	 * @return the total operands
-	 */
 	public int getTotalOperands() {
 		int total = 0;
 		for (Integer i : opd.values()) {
@@ -246,29 +221,14 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 		return total;
 	}
 
-	/**
-	 * Gets the vocabulary.
-	 * 
-	 * @return the vocabulary
-	 */
 	public int getVocabulary() {
 		return getUniqueOperators() + getUniqueOperands();
 	}
 
-	/**
-	 * Gets the program length.
-	 * 
-	 * @return the program length
-	 */
 	public int getProgramLength() {
 		return getTotalOperators() + getTotalOperands();
 	}
 
-	/**
-	 * Gets the volume.
-	 * 
-	 * @return the volume
-	 */
 	public double getVolume() {
 		if (getVocabulary() == 0)
 			return 1;

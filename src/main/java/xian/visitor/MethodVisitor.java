@@ -1,10 +1,5 @@
 package xian.visitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import xian.model.UserMethod;
 import japa.parser.ast.body.MethodDeclaration;
 import japa.parser.ast.body.Parameter;
 import japa.parser.ast.body.VariableDeclarator;
@@ -14,65 +9,57 @@ import japa.parser.ast.type.ReferenceType;
 import japa.parser.ast.visitor.GenericVisitorAdapter;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
 
+import java.util.List;
+import java.util.Map;
+
+import xian.model.UserMethod;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 /**
  * The Class MethodVisitor.
- * 
- * Used by a Class Visitor.
  */
 public class MethodVisitor extends VoidVisitorAdapter<Void> {
 
 	private List<UserMethod> methodList;
 
-	/**
-	 * Instantiates a new method visitor.
-	 */
 	public MethodVisitor() {
-		methodList = new ArrayList<UserMethod>();
+		methodList = Lists.newArrayList();
 	}
 
 	@Override
 	public void visit(final MethodDeclaration n, final Void arg) {
-
 		UserMethod method = new UserMethod(n.getName(), n.getType().toString());
 
-		// get method parameter and method variables
 		ParameterVisitor pv = new ParameterVisitor();
 		n.accept(pv, arg);
 		method.setParameters(pv.parameters);
-		pv = null; // reference explicitly set to null
+		pv = null;
 
 		VariableVisitor vv = new VariableVisitor();
 		n.accept(vv, arg);
 		method.setVariables(vv.variables);
-		vv = null;// reference explicitly set to null
+		vv = null;
 
-		// get method calls
 		CallVisitor cav = new CallVisitor();
 		n.accept(cav, arg);
 		method.setCalls(cav.calls);
-		cav = null;// reference explicitly set to null
+		cav = null;
 
-		// get Cyclomatic
 		CyclomaticVisitor cv = new CyclomaticVisitor();
 		n.accept(cv, arg);
 		method.setCylomatic(cv.getCyclomaticNumber());
-		cv = null;// reference explicitly set to null
+		cv = null;
 
-		// get Halstead
 		HalsteadVisitor hv = new HalsteadVisitor();
 		n.accept(hv, arg);
 		method.setVolume(hv.getVolume());
-		hv = null; // pv reference explicitly set to null
+		hv = null;
 
 		methodList.add(method);
-
 	}
 
-	/**
-	 * Gets the method list.
-	 * 
-	 * @return method list of the current class, won't be null
-	 */
 	public List<UserMethod> getMethodList() {
 		return methodList;
 	}
@@ -85,10 +72,10 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	private final class ParameterVisitor extends VoidVisitorAdapter<Void> {
 
 		/** The parameters, name as key and type as value, won't be null. */
-		private HashMap<String, String> parameters;
+		private Map<String, String> parameters;
 
 		public ParameterVisitor() {
-			parameters = new HashMap<String, String>();
+			parameters = Maps.newHashMap();
 		}
 
 		@Override
@@ -115,10 +102,10 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 	private final class VariableVisitor extends VoidVisitorAdapter<Void> {
 
 		/** The variables, name as key and type as value, won't be null. */
-		private HashMap<String, String> variables;
+		private Map<String, String> variables;
 
 		public VariableVisitor() {
-			variables = new HashMap<String, String>();
+			variables = Maps.newHashMap();
 		}
 
 		@Override
@@ -154,7 +141,7 @@ public class MethodVisitor extends VoidVisitorAdapter<Void> {
 		private List<MethodCallExpr> calls;
 
 		public CallVisitor() {
-			calls = new ArrayList<MethodCallExpr>();
+			calls = Lists.newArrayList();
 		}
 
 		@Override

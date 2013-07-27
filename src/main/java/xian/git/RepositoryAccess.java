@@ -7,7 +7,6 @@ import japa.parser.ast.CompilationUnit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +29,8 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.util.FileUtils;
+
+import com.google.common.collect.Lists;
 
 /**
  * The Class RepositoryAccess.
@@ -64,13 +65,6 @@ public class RepositoryAccess {
 			}
 		}
 
-		/**
-		 * Convert an int value to the Enum Rule.
-		 * 
-		 * @param i
-		 *            the int value
-		 * @return the Enum Rule
-		 */
 		public static Rule fromInt(int i) {
 			Rule rule = intToRuleMap.get(Integer.valueOf(i));
 			if (rule == null)
@@ -83,21 +77,10 @@ public class RepositoryAccess {
 	private static final String rootPath = System.getProperty("user.home")
 			+ File.separator + "git" + File.separator;
 
-	/** The repository remote url. */
 	private String url;
 
-	/** The repository object in this access. */
 	private Repository repository;
 
-	/**
-	 * Instantiates a new repository access.
-	 * 
-	 * @throws IOException
-	 * @throws GitAPIException
-	 * @throws NullPointerException
-	 * @throws TransportException
-	 * @throws InvalidRemoteException
-	 */
 	public RepositoryAccess(final String url, final Rule rule)
 			throws IOException, InvalidRemoteException, TransportException,
 			NullPointerException, GitAPIException {
@@ -159,7 +142,7 @@ public class RepositoryAccess {
 	public List<RevCommit> getCommits() throws IOException {
 		RevWalk walk = new RevWalk(repository);
 		walk.markStart(walk.parseCommit(repository.resolve(Constants.HEAD)));
-		List<RevCommit> revCommits = new ArrayList<RevCommit>();
+		List<RevCommit> revCommits = Lists.newArrayList();
 		for (Iterator<RevCommit> itr = walk.iterator(); itr.hasNext();) {
 			revCommits.add(itr.next());
 		}
@@ -172,10 +155,10 @@ public class RepositoryAccess {
 	 * @throws ParseException
 	 * 
 	 */
-	public List<CompilationUnit> getJavaInputStream(final RevCommit c)
+	public List<CompilationUnit> getJavaCompilationUnit(final RevCommit c)
 			throws MissingObjectException, IncorrectObjectTypeException,
 			CorruptObjectException, IOException {
-		List<CompilationUnit> filesList = new ArrayList<CompilationUnit>();
+		List<CompilationUnit> filesList = Lists.newArrayList();
 
 		RevWalk revWalk = new RevWalk(repository);
 		RevCommit commit = revWalk.parseCommit(c.getId());

@@ -4,34 +4,43 @@ import japa.parser.ast.CompilationUnit;
 import japa.parser.ast.ImportDeclaration;
 import japa.parser.ast.expr.MethodCallExpr;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
 
-import xian.git.RepositoryAccess;
-import xian.git.RepositoryAccess.Rule;
+import com.google.common.collect.Lists;
+
 import xian.model.CallModel;
+import xian.model.CommitData;
 import xian.model.UserClass;
 import xian.model.UserMethod;
 
-public class CommitVisitor {
+public class CommitVisitor implements Callable<CommitData> {
 
-	static List<UserClass> ucs = new ArrayList<UserClass>();
+	private List<UserClass> ucs = Lists.newArrayList();
+	private List<CallModel> cms = Lists.newArrayList();
 
-	public void access(String url) throws Exception {
-		RepositoryAccess ra = new RepositoryAccess(url, Rule.OLD);
-		for (Iterator<CompilationUnit> itr = ra.getJavaInputStream(
-				ra.getCommits().get(0)).iterator(); itr.hasNext();) {
+	public CommitVisitor(List<CompilationUnit> cus) {
+		for (Iterator<CompilationUnit> itr = cus.iterator(); itr.hasNext();) {
 			visit(itr.next());
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		CommitVisitor v = new CommitVisitor();
-		v.access("https://github.com/xetorthio/jedis.git");
-		System.out.println(ucs.size());
+	private void visit(CompilationUnit cu) {
 
-		List<CallModel> cms = new ArrayList<CallModel>();
+		ClassVisitor visitor = new ClassVisitor();
+		visitor.setPkgDeclaration(cu.getPackage());
+		visitor.setImports(cu.getImports());
+
+		cu.accept(visitor, null);
+
+		UserClass uc = visitor.getUserClass();
+		if (uc != null)
+			ucs.add(uc);
+	}
+
+	@Override
+	public CommitData call() throws Exception {
 
 		for (UserClass uc : ucs) {
 			for (UserMethod um : uc.getDefinedMethods()) {
@@ -47,213 +56,185 @@ public class CommitVisitor {
 
 			}
 		}
-
-		System.out.println(cms.size());
-
-		for (CallModel cm : cms) {
-			System.out.println(cm);
-		}
+		CommitData cd = new CommitData();
+		cd.setCms(cms);
+		cd.setUcs(ucs);
+		return cd;
 	}
 
-	private static CallModel checkCallModel(MethodCallExpr mc, UserMethod um,
+	private CallModel checkCallModel(MethodCallExpr mc, UserMethod um,
 			UserClass uc) {
-		// check where method call variable is defined
+		// check if the callee variable is defined in method parameters
 		if (mc.getScope() != null
 				&& um.getParameters().containsKey(mc.getScope().toString())) {
-			if (uc.getImports() != null) {
-				for (ImportDeclaration n : uc.getImports()) {
-					if (n.getName()
-							.getName()
-							.equals(um.getParameters().get(
-									mc.getScope().toString()))) {
-						for (UserClass ucc : ucs) {
-							if (ucc.getCanonicalName().equals(
-									n.getName().toString())) {
-								UserMethod callee = ucc.getUserMethod(mc
-										.getName());
-								if (callee == null)
-									return null;
 
-								StringBuilder sbCaller = new StringBuilder();
-								StringBuilder sbCallee = new StringBuilder();
-								sbCaller.append(uc.getCanonicalName())
-										.append(".").append(um.getName());
-								sbCallee.append(ucc.getCanonicalName())
-										.append(".").append(callee.getName());
+			// check whether the callee type is in the import class list
+			for (ImportDeclaration n : uc.getImports()) {
+				if (n.getName()
+						.getName()
+						.equals(um.getParameters()
+								.get(mc.getScope().toString()))) {
+					// check if the import class is user-defined class
+					for (UserClass ucc : ucs) {
+						if (ucc.getCanonicalName().equals(
+								n.getName().toString())) {
+							UserMethod callee = ucc.getUserMethod(mc.getName());
+							if (callee == null)
+								return null;
 
-								CallModel cm = new CallModel.Builder(
-										sbCaller.toString(),
-										sbCallee.toString())
-										.callerCyclo(um.getCylomatic())
-										.callerVolume(um.getVolume())
-										.calleeCyclo(callee.getCylomatic())
-										.calleeVolume(callee.getVolume())
-										.build();
-								return cm;
-							}
+							StringBuilder sbCaller = new StringBuilder();
+							StringBuilder sbCallee = new StringBuilder();
+							sbCaller.append(uc.getCanonicalName()).append(".")
+									.append(um.getName());
+							sbCallee.append(ucc.getCanonicalName()).append(".")
+									.append(callee.getName());
+
+							CallModel cm = new CallModel.Builder(
+									sbCaller.toString(), sbCallee.toString())
+									.callerCyclo(um.getCylomatic())
+									.callerVolume(um.getVolume())
+									.calleeCyclo(callee.getCylomatic())
+									.calleeVolume(callee.getVolume()).build();
+							return cm;
 						}
-						return null;
 					}
-				}
-			} else { // import is null
-				for (UserClass ucc : ucs) {
-					if (ucc.getName().equals(
-							um.getParameters().get(mc.getScope().toString()))) {
-						UserMethod callee = ucc.getUserMethod(mc.getName());
-						if (callee == null)
-							return null;
-
-						StringBuilder sbCaller = new StringBuilder();
-						StringBuilder sbCallee = new StringBuilder();
-						sbCaller.append(uc.getCanonicalName()).append(".")
-								.append(um.getName());
-						sbCallee.append(ucc.getCanonicalName()).append(".")
-								.append(callee.getName());
-
-						CallModel cm = new CallModel.Builder(
-								sbCaller.toString(), sbCallee.toString())
-								.callerCyclo(um.getCylomatic())
-								.callerVolume(um.getVolume())
-								.calleeCyclo(callee.getCylomatic())
-								.calleeVolume(callee.getVolume()).build();
-						return cm;
-					}
+					return null;
 				}
 			}
-			// check local defined variables
+			for (UserClass ucc : ucs) {
+				if (ucc.getName().equals(
+						um.getParameters().get(mc.getScope().toString()))) {
+					UserMethod callee = ucc.getUserMethod(mc.getName());
+					if (callee == null)
+						return null;
+
+					StringBuilder sbCaller = new StringBuilder();
+					StringBuilder sbCallee = new StringBuilder();
+					sbCaller.append(uc.getCanonicalName()).append(".")
+							.append(um.getName());
+					sbCallee.append(ucc.getCanonicalName()).append(".")
+							.append(callee.getName());
+
+					CallModel cm = new CallModel.Builder(sbCaller.toString(),
+							sbCallee.toString()).callerCyclo(um.getCylomatic())
+							.callerVolume(um.getVolume())
+							.calleeCyclo(callee.getCylomatic())
+							.calleeVolume(callee.getVolume()).build();
+					return cm;
+				}
+			}
+
+			// check if the callee variable is defined in local variables
 		} else if (mc.getScope() != null
 				&& um.getVariables().containsKey(mc.getScope().toString())) {
-			if (uc.getImports() != null) {
-				for (ImportDeclaration n : uc.getImports()) {
-					if (n.getName()
-							.getName()
-							.equals(um.getVariables().get(
-									mc.getScope().toString()))) {
-						for (UserClass ucc : ucs) {
-							if (ucc.getCanonicalName().equals(
-									n.getName().toString())) {
-								UserMethod callee = uc.getUserMethod(mc
-										.getName());
-								if (callee == null)
-									return null;
+			// check if the callee type is in the import list
+			for (ImportDeclaration n : uc.getImports()) {
+				if (n.getName()
+						.getName()
+						.equals(um.getVariables().get(mc.getScope().toString()))) {
+					// check if the import type is user-defined class
+					for (UserClass ucc : ucs) {
+						if (ucc.getCanonicalName().equals(
+								n.getName().toString())) {
+							UserMethod callee = uc.getUserMethod(mc.getName());
+							if (callee == null)
+								return null;
 
-								StringBuilder sbCaller = new StringBuilder();
-								StringBuilder sbCallee = new StringBuilder();
-								sbCaller.append(uc.getCanonicalName())
-										.append(".").append(um.getName());
-								sbCallee.append(ucc.getCanonicalName())
-										.append(".").append(callee.getName());
+							StringBuilder sbCaller = new StringBuilder();
+							StringBuilder sbCallee = new StringBuilder();
+							sbCaller.append(uc.getCanonicalName()).append(".")
+									.append(um.getName());
+							sbCallee.append(ucc.getCanonicalName()).append(".")
+									.append(callee.getName());
 
-								CallModel cm = new CallModel.Builder(
-										sbCaller.toString(),
-										sbCallee.toString())
-										.callerCyclo(um.getCylomatic())
-										.callerVolume(um.getVolume())
-										.calleeCyclo(callee.getCylomatic())
-										.calleeVolume(callee.getVolume())
-										.build();
+							CallModel cm = new CallModel.Builder(
+									sbCaller.toString(), sbCallee.toString())
+									.callerCyclo(um.getCylomatic())
+									.callerVolume(um.getVolume())
+									.calleeCyclo(callee.getCylomatic())
+									.calleeVolume(callee.getVolume()).build();
 
-								return cm;
-							}
+							return cm;
 						}
-						return null;
 					}
+					return null;
 				}
-			} else { // import is null
-				for (UserClass ucc : ucs) {
-					if (ucc.getName().equals(
-							um.getVariables().get(mc.getScope().toString()))) {
-						UserMethod callee = ucc.getUserMethod(mc.getName());
-						if (callee == null)
-							return null;
-						StringBuilder sbCaller = new StringBuilder();
-						StringBuilder sbCallee = new StringBuilder();
-						sbCaller.append(uc.getCanonicalName()).append(".")
-								.append(um.getName());
-						sbCallee.append(ucc.getCanonicalName()).append(".")
-								.append(callee.getName());
-						CallModel cm = new CallModel.Builder(
-								sbCaller.toString(), sbCallee.toString())
-								.callerCyclo(um.getCylomatic())
-								.callerVolume(um.getVolume())
-								.calleeCyclo(callee.getCylomatic())
-								.calleeVolume(callee.getVolume()).build();
-						return cm;
-					}
+			}
+			for (UserClass ucc : ucs) {
+				if (ucc.getName().equals(
+						um.getVariables().get(mc.getScope().toString()))) {
+					UserMethod callee = ucc.getUserMethod(mc.getName());
+					if (callee == null)
+						return null;
+					StringBuilder sbCaller = new StringBuilder();
+					StringBuilder sbCallee = new StringBuilder();
+					sbCaller.append(uc.getCanonicalName()).append(".")
+							.append(um.getName());
+					sbCallee.append(ucc.getCanonicalName()).append(".")
+							.append(callee.getName());
+					CallModel cm = new CallModel.Builder(sbCaller.toString(),
+							sbCallee.toString()).callerCyclo(um.getCylomatic())
+							.callerVolume(um.getVolume())
+							.calleeCyclo(callee.getCylomatic())
+							.calleeVolume(callee.getVolume()).build();
+					return cm;
 				}
 			}
 
+			// check if the callee variable is defined in instance variables
 		} else if (mc.getScope() != null
 				&& uc.getFields().containsKey(mc.getScope().toString())) {
-			if (uc.getImports() != null) {
-				for (ImportDeclaration n : uc.getImports()) {
-					if (n.getName()
-							.getName()
-							.equals(uc.getFields()
-									.get(mc.getScope().toString()))) {
-						for (UserClass ucc : ucs) {
-							if (ucc.getCanonicalName().equals(
-									n.getName().toString())) {
-								UserMethod callee = ucc.getUserMethod(mc
-										.getName());
-								if (callee == null)
-									return null;
-								StringBuilder sbCaller = new StringBuilder();
-								StringBuilder sbCallee = new StringBuilder();
-								sbCaller.append(uc.getCanonicalName())
-										.append(".").append(um.getName());
-								sbCallee.append(ucc.getCanonicalName())
-										.append(".").append(callee.getName());
-								CallModel cm = new CallModel.Builder(
-										sbCaller.toString(),
-										sbCallee.toString())
-										.callerCyclo(um.getCylomatic())
-										.callerVolume(um.getVolume())
-										.calleeCyclo(callee.getCylomatic())
-										.calleeVolume(callee.getVolume())
-										.build();
-								return cm;
-							}
+			// check if the callee type is in the import list
+			for (ImportDeclaration n : uc.getImports()) {
+				if (n.getName().getName()
+						.equals(uc.getFields().get(mc.getScope().toString()))) {
+					// check if the import type is user-defined class
+					for (UserClass ucc : ucs) {
+						if (ucc.getCanonicalName().equals(
+								n.getName().toString())) {
+							UserMethod callee = ucc.getUserMethod(mc.getName());
+							if (callee == null)
+								return null;
+							StringBuilder sbCaller = new StringBuilder();
+							StringBuilder sbCallee = new StringBuilder();
+							sbCaller.append(uc.getCanonicalName()).append(".")
+									.append(um.getName());
+							sbCallee.append(ucc.getCanonicalName()).append(".")
+									.append(callee.getName());
+							CallModel cm = new CallModel.Builder(
+									sbCaller.toString(), sbCallee.toString())
+									.callerCyclo(um.getCylomatic())
+									.callerVolume(um.getVolume())
+									.calleeCyclo(callee.getCylomatic())
+									.calleeVolume(callee.getVolume()).build();
+							return cm;
 						}
-						return null;
 					}
+					return null;
 				}
-			} else { // import is null
-				for (UserClass ucc : ucs) {
-					if (ucc.getName().equals(mc.getName())) {
-						UserMethod callee = ucc.getUserMethod(mc.getName());
-						if (callee == null)
-							return null;
-						StringBuilder sbCaller = new StringBuilder();
-						StringBuilder sbCallee = new StringBuilder();
-						sbCaller.append(uc.getCanonicalName()).append(".")
-								.append(um.getName());
-						sbCallee.append(ucc.getCanonicalName()).append(".")
-								.append(callee.getName());
-						CallModel cm = new CallModel.Builder(
-								sbCaller.toString(), sbCallee.toString())
-								.callerCyclo(um.getCylomatic())
-								.callerVolume(um.getVolume())
-								.calleeCyclo(callee.getCylomatic())
-								.calleeVolume(callee.getVolume()).build();
-						return cm;
-					}
+			}
+			for (UserClass ucc : ucs) {
+				if (ucc.getName().equals(mc.getName())) {
+					UserMethod callee = ucc.getUserMethod(mc.getName());
+					if (callee == null)
+						return null;
+					StringBuilder sbCaller = new StringBuilder();
+					StringBuilder sbCallee = new StringBuilder();
+					sbCaller.append(uc.getCanonicalName()).append(".")
+							.append(um.getName());
+					sbCallee.append(ucc.getCanonicalName()).append(".")
+							.append(callee.getName());
+					CallModel cm = new CallModel.Builder(sbCaller.toString(),
+							sbCallee.toString()).callerCyclo(um.getCylomatic())
+							.callerVolume(um.getVolume())
+							.calleeCyclo(callee.getCylomatic())
+							.calleeVolume(callee.getVolume()).build();
+					return cm;
 				}
 			}
 		}
+
 		return null;
 	}
 
-	public void visit(CompilationUnit cu) {
-
-		ClassVisitor visitor = new ClassVisitor();
-		visitor.setPkgDeclaration(cu.getPackage());
-		visitor.setImports(cu.getImports());
-
-		cu.accept(visitor, null);
-
-		UserClass uc = visitor.getUserClass();
-		if (uc != null)
-			ucs.add(uc);
-	}
 }

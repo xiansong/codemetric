@@ -53,36 +53,25 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 * current visitor. Finally visit the body with the current visitor. A
 	 * special case is infinite-loop for(;;), which lead to its sub expr or stmt
 	 * to be null.
-	 * 
 	 */
 	@Override
 	public void visit(final ForStmt n, final Void arg) {
 		number++;
-		// visit first column in for statement
-		// the init-expr collection may be null
 		if (n.getInit() != null)
 			for (Expression expr : n.getInit()) {
 				expr.accept(this, arg);
 			}
-
-		// visit second column in for statement
-		// the compare-expr may be null
 		if (n.getCompare() != null)
 			n.getCompare().accept(this, arg);
-
-		// visit third column in for statement
-		// the update-expr collection may be null
 		if (n.getUpdate() != null)
 			for (Expression expr : n.getUpdate()) {
 				expr.accept(this, arg);
 			}
-		// visit the for body
 		n.getBody().accept(this, arg);
 	}
 
 	/**
 	 * Visit a foreach statement - for(T d : Iterable<T>), then visit body.
-	 * 
 	 */
 	@Override
 	public void visit(final ForeachStmt n, final Void arg) {
@@ -100,8 +89,7 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 * if(condition-expr){then-stmt}else-if(){}|else{else-stmt}, Visit the
 	 * condition-expr, then-stmt with the current visitor. When there is a
 	 * hidden if-stmt, recursively visit the if-stmt, else visit the else-stmt
-	 * with the current visitor
-	 * 
+	 * with the current visitor 
 	 */
 	private void visitIfStmt(final IfStmt n) {
 		number++;
@@ -111,10 +99,8 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 		Statement elseStmt = n.getElseStmt();
 		if (elseStmt != null) {
 			if (IfStmt.class.isAssignableFrom(elseStmt.getClass())) {
-				// contains an else-if, recursively visit new if-stmt
 				visitIfStmt((IfStmt) elseStmt);
 			} else {
-				// else visit else-stmt with the current visitor
 				n.getElseStmt().accept(this, null);
 			}
 		}
@@ -124,7 +110,6 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 * Visit a switch statement and only count case statement. Visist each
 	 * case-entry including default with the current visitor. A switch statemtn
 	 * may have no entries in it.
-	 * 
 	 */
 	@Override
 	public void visit(final SwitchStmt n, final Void arg) {
@@ -144,7 +129,6 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 * Visit a try statement, counts all catch-blocks. Then visit the the
 	 * try-block and each catch-block with the currrent visitor. Finally visit
 	 * the finally-block with the current visitor.
-	 * 
 	 */
 	@Override
 	public void visit(final TryStmt n, final Void arg) {
@@ -163,7 +147,6 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	/**
 	 * Visit a while statement and then visit the while-body with the current
 	 * visitor.
-	 * 
 	 */
 	@Override
 	public void visit(final WhileStmt n, final Void arg) {
@@ -174,7 +157,6 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	/**
 	 * Visit a Binary expression with && or || then visit its left and right
 	 * expression with the current visitor.
-	 * 
 	 */
 	@Override
 	public void visit(final BinaryExpr n, final Void arg) {
@@ -190,7 +172,6 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 * Visit a conditional expression (condition ? then-expr : else-expr), then
 	 * visit its condition, then expression and else expression with the current
 	 * visitor.
-	 * 
 	 */
 	@Override
 	public void visit(final ConditionalExpr n, final Void arg) {
@@ -200,11 +181,6 @@ public class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 		n.getElseExpr().accept(this, arg);
 	}
 
-	/**
-	 * Gets the Cyclomatic number.
-	 * 
-	 * @return the Cyclomatic number
-	 */
 	public int getCyclomaticNumber() {
 		return number;
 	}

@@ -37,7 +37,11 @@
 			<version>3.0.0.201306101825-r</version>
 		</dependency>
 
-
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>r09</version>
+		</dependency>
 
 		<!-- Jersey [asm is required when using jersey servlet container] -->
 		<dependency>

@@ -2,8 +2,8 @@ package xian.model;
 
 import japa.parser.ast.expr.MethodCallExpr;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Stores information of a method in the user-defined classes.
@@ -14,19 +14,13 @@ public final class UserMethod {
 
 	private String returnType;
 
-	/**
-	 * the Cyclomatic number of this method
-	 */
 	private int cylomatic;
 
-	/**
-	 * the Halstead volume
-	 */
 	private double volume;
 
-	private HashMap<String, String> parameters;
+	private Map<String, String> parameters;
 
-	private HashMap<String, String> variables;
+	private Map<String, String> variables;
 
 	private List<MethodCallExpr> calls;
 
@@ -67,19 +61,19 @@ public final class UserMethod {
 		return calls;
 	}
 
-	public HashMap<String, String> getParameters() {
+	public Map<String, String> getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(final HashMap<String, String> parameters) {
+	public void setParameters(final Map<String, String> parameters) {
 		this.parameters = parameters;
 	}
 
-	public HashMap<String, String> getVariables() {
+	public Map<String, String> getVariables() {
 		return variables;
 	}
 
-	public void setVariables(final HashMap<String, String> variables) {
+	public void setVariables(final Map<String, String> variables) {
 		this.variables = variables;
 	}
 

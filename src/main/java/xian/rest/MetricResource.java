@@ -48,7 +48,7 @@ public class MetricResource {
 			RepositoryAccess rm = new RepositoryAccess(
 					"https://github.com/xetorthio/jedis.git", Rule.OLD);
 			return Response
-					.ok(String.valueOf(rm.getJavaInputStream(
+					.ok(String.valueOf(rm.getJavaCompilationUnit(
 							rm.getCommits().get(0)).size())).build();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
