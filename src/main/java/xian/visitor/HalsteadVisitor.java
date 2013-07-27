@@ -1,9 +1,5 @@
 package xian.visitor;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-
 import japa.parser.ast.body.VariableDeclarator;
 import japa.parser.ast.expr.AssignExpr;
 import japa.parser.ast.expr.BinaryExpr;
@@ -12,6 +8,10 @@ import japa.parser.ast.expr.InstanceOfExpr;
 import japa.parser.ast.expr.UnaryExpr;
 import japa.parser.ast.expr.VariableDeclarationExpr;
 import japa.parser.ast.visitor.VoidVisitorAdapter;
+
+import java.util.Map;
+
+import com.google.common.collect.Maps;
 
 /** 
  * Provide access to Halstead measures targeting at method level.* 
@@ -41,14 +41,11 @@ public class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	private Map<String, Integer> opd;
 
 	public HalsteadVisitor() {
-		oprAsgn = new EnumMap<AssignExpr.Operator, Integer>(
-				AssignExpr.Operator.class);
-		oprBin = new EnumMap<BinaryExpr.Operator, Integer>(
-				BinaryExpr.Operator.class);
-		oprUnary = new EnumMap<UnaryExpr.Operator, Integer>(
-				UnaryExpr.Operator.class);
-		extraOpr = new EnumMap<ExtraOperator, Integer>(ExtraOperator.class);
-		opd = new HashMap<String, Integer>();
+		oprAsgn = Maps.newEnumMap(AssignExpr.Operator.class);
+		oprBin = Maps.newEnumMap(BinaryExpr.Operator.class);
+		oprUnary = Maps.newEnumMap(UnaryExpr.Operator.class);
+		extraOpr = Maps.newEnumMap(ExtraOperator.class);
+		opd = Maps.newHashMap();
 	}
 
 	/**
