@@ -19,10 +19,12 @@ import xian.model.UserMethod;
 
 public final class CommitVisitor implements Callable<CommitData> {
 
-	private List<UserClass> ucs = Lists.newArrayList();
-	private Set<CallModel> cms = Sets.newHashSet();
+	private List<UserClass> ucs;
+	private Set<CallModel> cms;
 
 	public CommitVisitor(List<CompilationUnit> cus) {
+		ucs = Lists.newArrayList();
+		cms = Sets.newHashSet();
 		for (Iterator<CompilationUnit> itr = cus.iterator(); itr.hasNext();) {
 			visit(itr.next());
 		}

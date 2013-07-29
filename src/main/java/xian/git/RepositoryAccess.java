@@ -11,12 +11,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -59,7 +58,7 @@ public final class RepositoryAccess {
 		}
 
 		private static final Map<Integer, Rule> intToRuleMap = new HashMap<Integer, Rule>();
-		
+
 		static {
 			for (Rule rule : Rule.values()) {
 				intToRuleMap.put(rule.value, rule);
@@ -82,9 +81,20 @@ public final class RepositoryAccess {
 
 	private Repository repository;
 
+	/**
+	 * Instantiates a new repository access.
+	 * 
+	 * @param url
+	 *            the url
+	 * @param rule
+	 *            repository access rule
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws GitAPIException
+	 *             the git api exception
+	 */
 	public RepositoryAccess(final String url, final Rule rule)
-			throws IOException, InvalidRemoteException, TransportException,
-			NullPointerException, GitAPIException {
+			throws IOException, GitAPIException {
 		this.url = url;
 		File gitDir = new File(rootPath + getRepositoryName());
 		if (rule == Rule.OLD) {
@@ -102,15 +112,20 @@ public final class RepositoryAccess {
 	}
 
 	/**
-	 * Git clone.
-	 * 
 	 * Clone the remote Repository to local
 	 */
-	public void gitClone() throws InvalidRemoteException, TransportException,
-			NullPointerException, GitAPIException, IOException {
-		Git.cloneRepository().setURI(url)
-				.setDirectory(new File(rootPath + getRepositoryName())).call();
+	private void gitClone() throws IOException, GitAPIException {
 		File gitDir = new File(rootPath + getRepositoryName());
+
+		try {
+			Git.cloneRepository().setURI(url)
+					.setDirectory(new File(rootPath + getRepositoryName()))
+					.call();
+		} catch (GitAPIException e) {
+			FileUtils.delete(gitDir, FileUtils.RECURSIVE);
+			throw e;
+		}
+
 		Git git = Git.open(gitDir);
 		repository = git.getRepository();
 	}
@@ -118,19 +133,16 @@ public final class RepositoryAccess {
 	/**
 	 * Construct the repository name and return.
 	 * 
-	 * @return the repository name
-	 * @throws NullPointerException
-	 *             the null pointer exception
+	 * @return the repository name or null
 	 */
-	private String getRepositoryName() throws NullPointerException {
-		final StringTokenizer st = new StringTokenizer(url, "\\/");
+	public String getRepositoryName() {
 		String name = null;
-		while (st.hasMoreTokens()) {
-			name = st.nextToken();
+		Pattern pattern = Pattern.compile("[a-zA-Z0-9\\.\\-\\_]+(\\.git)$");
+		Matcher matcher = pattern.matcher(url);
+		while (matcher.find()) {
+			name = matcher.group(0);
 		}
-		// get the repositoryName from String "repositoryName.git"
-		return name.substring(0, name.length() - 4);
-
+		return name.substring(0, name.length()-4);
 	}
 
 	/**

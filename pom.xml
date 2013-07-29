@@ -10,9 +10,13 @@
 
 	<properties>
 		<java.version>1.7</java.version>
+		<maven.compiler.plugin.version>3.1</maven.compiler.plugin.version>
 		<junit.version>4.11</junit.version>
 		<japaser.version>1.0.9</japaser.version>
-		<jersey.version>1.17.1</jersey.version>
+		<jersey.version>1.8</jersey.version>
+		<jgit.version>3.0.0.201306101825-r</jgit.version>
+		<guava.version>r09</guava.version>
+		<trove4j.version>3.0.3</trove4j.version>
 	</properties>
 
 	<dependencies>
@@ -34,36 +38,39 @@
 		<dependency>
 			<groupId>org.eclipse.jgit</groupId>
 			<artifactId>org.eclipse.jgit</artifactId>
-			<version>3.0.0.201306101825-r</version>
+			<version>${jgit.version}</version>
 		</dependency>
 
+		<!-- collection framework -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>r09</version>
+			<version>${guava.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>net.sf.trove4j</groupId>
 			<artifactId>trove4j</artifactId>
-			<version>3.0.3</version>
+			<version>${trove4j.version}</version>
 		</dependency>
-
-		<!-- Jersey [asm is required when using jersey servlet container] -->
+		
+		<!-- jersey lib -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-bundle</artifactId>
+			<artifactId>jersey-server</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
+
 		<dependency>
-			<groupId>asm</groupId>
-			<artifactId>asm</artifactId>
-			<version>3.3.1</version>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-json</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
+
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>3.0-alpha-1</version>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>${jersey.version}</version>
 		</dependency>
 
 	</dependencies>
@@ -74,7 +81,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.1</version>
+				<version>${maven.compiler.plugin.version}</version>
 				<configuration>
 					<source>${java.version}</source>
 					<target>${java.version}</target>
