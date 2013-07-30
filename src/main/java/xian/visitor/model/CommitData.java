@@ -1,4 +1,4 @@
-package xian.model;
+package xian.visitor.model;
 
 import java.util.List;
 import java.util.Set;

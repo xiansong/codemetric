@@ -18,7 +18,7 @@ public class TestURL {
 		String url = URLEncoder.encode(
 				"https://github.com/xetorthio/jedis.git", "UTF-8");
 		UriBuilder base = UriBuilder
-				.fromPath("http://localhost:8080/codemetric/rest/metric/basic");
+				.fromPath("http://localhost:8080/codemetric/rest/metric/basicInfo");
 		WebResource resource = Client.create().resource(
 				base.matrixParam("url", url).matrixParam("rule", 0).build());
 		ClientResponse response = resource.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);

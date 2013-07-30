@@ -1,4 +1,4 @@
-package xian.model;
+package xian.visitor.model;
 
 /**
  * 
@@ -77,6 +77,7 @@ public final class CallModel {
 		return sb.toString();
 	}
 
+	//lazy initialized, cache hashcode
 	private volatile int hashCode;
 
 	@Override

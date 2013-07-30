@@ -1,4 +1,4 @@
-package xian.model;
+package xian.visitor.model;
 
 import japa.parser.ast.ImportDeclaration;
 import japa.parser.ast.PackageDeclaration;

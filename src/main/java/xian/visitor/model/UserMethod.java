@@ -1,4 +1,4 @@
-package xian.model;
+package xian.visitor.model;
 
 import japa.parser.ast.expr.MethodCallExpr;
 

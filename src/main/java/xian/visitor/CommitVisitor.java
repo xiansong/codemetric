@@ -12,17 +12,17 @@ import java.util.concurrent.Callable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import xian.model.CallModel;
-import xian.model.CommitData;
-import xian.model.UserClass;
-import xian.model.UserMethod;
+import xian.visitor.model.CallModel;
+import xian.visitor.model.CommitData;
+import xian.visitor.model.UserClass;
+import xian.visitor.model.UserMethod;
 
 public final class CommitVisitor implements Callable<CommitData> {
 
 	private List<UserClass> ucs;
 	private Set<CallModel> cms;
 
-	public CommitVisitor(List<CompilationUnit> cus) {
+	public CommitVisitor(final List<CompilationUnit> cus) {
 		ucs = Lists.newArrayList();
 		cms = Sets.newHashSet();
 		for (Iterator<CompilationUnit> itr = cus.iterator(); itr.hasNext();) {
@@ -30,7 +30,7 @@ public final class CommitVisitor implements Callable<CommitData> {
 		}
 	}
 
-	private void visit(CompilationUnit cu) {
+	private void visit(final CompilationUnit cu) {
 
 		ClassVisitor visitor = new ClassVisitor();
 		visitor.setPkgDeclaration(cu.getPackage());
@@ -64,8 +64,8 @@ public final class CommitVisitor implements Callable<CommitData> {
 		return cd;
 	}
 
-	private CallModel checkCallModel(MethodCallExpr mc, UserMethod um,
-			UserClass uc) {
+	private CallModel checkCallModel(final MethodCallExpr mc,
+			final UserMethod um, final UserClass uc) {
 		// check if the callee variable is defined in method parameters
 		if (mc.getScope() != null
 				&& um.getParameters().containsKey(mc.getScope().toString())) {

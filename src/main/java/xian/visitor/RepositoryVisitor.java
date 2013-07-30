@@ -11,13 +11,14 @@ import com.google.common.collect.Lists;
 
 import xian.git.RepositoryAccess;
 import xian.git.RepositoryAccess.Rule;
-import xian.model.CommitData;
+import xian.visitor.model.CommitData;
+import xian.visitor.model.UserClass;
 
 public class RepositoryVisitor {
 
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
-		RepositoryAccess ra = new RepositoryAccess("https://github.com/xetorthio/jedis.git", Rule.OLD);
+		RepositoryAccess ra = new RepositoryAccess("https://github.com/xiansong/codemetric.git", Rule.OLD);
 		int size = ra.getCommits().size();
 		
 		long t1 = System.currentTimeMillis();
@@ -28,11 +29,17 @@ public class RepositoryVisitor {
 			futures.add(service.submit(new CommitVisitor(ra.getJavaCompilationUnit(c))));
 		}
 		for(Future<CommitData> f:futures){
-			if(f!=null)
-			System.out.println(f.get().getCms().size());
+			if(f!=null){
+				int sum = 0;
+				for(UserClass uc: f.get().getUcs()){
+					sum+=uc.getVolume();
+				}
+				System.out.println(sum);
+			}
+			
 		}
 		service.shutdown();
-		System.out.println((System.currentTimeMillis()-t1));
+		System.out.println((System.currentTimeMillis()-t1)+" ms");
 	}
 
 }

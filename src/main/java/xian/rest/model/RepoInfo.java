@@ -5,62 +5,80 @@ import java.io.Serializable;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public final class RepoInfo implements Serializable{
-	
+public final class RepoInfo implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
-	private String author;
-	
-	private String name;
-	
-	private int numberOfCommit;
-	
-	private long startOn;
-	
-	private long lastUpdate;
+	private final String author;
 
-	public RepoInfo(){
-		
+	private final String name;
+
+	private final int numberOfCommit;
+
+	private final long startOn;
+
+	private final long lastUpdate;
+
+	private RepoInfo(Builder builder) {
+		author = builder.author;
+		name = builder.name;
+		numberOfCommit = builder.numberOfCommit;
+		startOn = builder.startOn;
+		lastUpdate = builder.lastUpdate;
 	}
-	
+
+	public static class Builder {
+		private final String author;
+		private final String name;
+
+		private int numberOfCommit = 0;
+		private long startOn = 0;
+		private long lastUpdate = 0;
+
+		public Builder numOfCommit(final int numOfCommit) {
+			numberOfCommit = numOfCommit;
+			return this;
+		}
+
+		public Builder startOn(final long start) {
+			startOn = start;
+			return this;
+		}
+
+		public Builder lastUpdate(final long last) {
+			lastUpdate = last;
+			return this;
+		}
+
+		public Builder(final String author, final String name) {
+			this.author = author;
+			this.name = name;
+		}
+
+		public RepoInfo build() {
+			return new RepoInfo(this);
+		}
+
+	}
+
 	public String getAuthor() {
 		return author;
-	}
-
-	public void setAuthor(final String author) {
-		this.author = author;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(final String name) {
-		this.name = name;
-	}
-
 	public int getNumberOfCommit() {
 		return numberOfCommit;
-	}
-
-	public void setNumberOfCommit(final int numberOfCommit) {
-		this.numberOfCommit = numberOfCommit;
 	}
 
 	public long getStartOn() {
 		return startOn;
 	}
 
-	public void setStartOn(final long startOn) {
-		this.startOn = startOn;
-	}
-
 	public long getLastUpdate() {
 		return lastUpdate;
 	}
 
-	public void setLastUpdate(final long lastUpdate) {
-		this.lastUpdate = lastUpdate;
-	}	
-	
 }

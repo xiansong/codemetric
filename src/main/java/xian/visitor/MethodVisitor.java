@@ -12,7 +12,7 @@ import japa.parser.ast.visitor.VoidVisitorAdapter;
 import java.util.List;
 import java.util.Map;
 
-import xian.model.UserMethod;
+import xian.visitor.model.UserMethod;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

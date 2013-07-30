@@ -7,6 +7,7 @@ import japa.parser.ast.CompilationUnit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -47,9 +48,9 @@ public final class RepositoryAccess {
 	public enum Rule {
 		OLD(0), NEW(1), UNKNOWN(-1);
 
-		private int value;
+		private final int value;
 
-		private Rule(int value) {
+		private Rule(final int value) {
 			this.value = value;
 		}
 
@@ -65,7 +66,7 @@ public final class RepositoryAccess {
 			}
 		}
 
-		public static Rule fromInt(int i) {
+		public static Rule fromInt(final int i) {
 			Rule rule = intToRuleMap.get(Integer.valueOf(i));
 			if (rule == null)
 				return Rule.UNKNOWN;
@@ -74,8 +75,14 @@ public final class RepositoryAccess {
 	}
 
 	/** The Constant rootPath for storing local git repositories. */
-	private static final String rootPath = System.getProperty("user.home")
-			+ File.separator + "git" + File.separator;
+	private static final String rootPath;
+
+	static {
+		StringBuilder sb = new StringBuilder();
+		sb.append(System.getProperty("user.home")).append(File.separator)
+				.append("git").append(File.separator);
+		rootPath = sb.toString();
+	}
 
 	private String url;
 
@@ -142,19 +149,21 @@ public final class RepositoryAccess {
 		while (matcher.find()) {
 			name = matcher.group(0);
 		}
-		return name.substring(0, name.length()-4);
+		return name.substring(0, name.length() - 4);
 	}
 
 	/**
 	 * Gets the commits.
 	 * 
 	 * @return the commits
-	 * @throws IOException
-	 *             Signals that an I/O exception has occurred.
 	 */
-	public List<RevCommit> getCommits() throws IOException {
+	public List<RevCommit> getCommits() {
 		RevWalk walk = new RevWalk(repository);
-		walk.markStart(walk.parseCommit(repository.resolve(Constants.HEAD)));
+		try {
+			walk.markStart(walk.parseCommit(repository.resolve(Constants.HEAD)));
+		} catch (Exception e) {
+			return Collections.emptyList();
+		}
 		List<RevCommit> revCommits = Lists.newArrayList();
 		for (Iterator<RevCommit> itr = walk.iterator(); itr.hasNext();) {
 			revCommits.add(itr.next());
@@ -172,10 +181,7 @@ public final class RepositoryAccess {
 			throws MissingObjectException, IncorrectObjectTypeException,
 			CorruptObjectException, IOException {
 		List<CompilationUnit> filesList = Lists.newArrayList();
-
-		RevWalk revWalk = new RevWalk(repository);
-		RevCommit commit = revWalk.parseCommit(c.getId());
-		RevTree tree = commit.getTree();
+		RevTree tree = c.getTree();
 		TreeWalk treeWalk = new TreeWalk(repository);
 		treeWalk.addTree(tree);
 		treeWalk.setRecursive(true);
@@ -186,11 +192,10 @@ public final class RepositoryAccess {
 			try (InputStream in = loader.openStream()) {
 				CompilationUnit cu = JavaParser.parse(in, "UTF8");
 				filesList.add(cu);
-			} catch (MissingObjectException moe) {
-			} catch (IOException ioe) {
-			} catch (ParseException pe) {
+			} catch (Exception e) {
 			}
 		}
+
 		return filesList;
 	}
 
