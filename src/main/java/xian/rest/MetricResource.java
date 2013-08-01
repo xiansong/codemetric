@@ -8,13 +8,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
 
 import xian.git.RepositoryAccess;
 import xian.git.RepositoryAccess.Rule;
 import xian.rest.model.RepoInfo;
+import xian.visitor.RepositoryVisitor;
 
 @Path("metric")
 public class MetricResource {
@@ -31,26 +29,18 @@ public class MetricResource {
 					Rule.fromInt(rule));
 			int size = rm.getCommits().size();
 			if (size != 0) {
-				RepoInfo repoinfo = new RepoInfo.Builder(rm.getCommits().get(0)
-						.getAuthorIdent().getName(), rm.getRepositoryName())
-						.numOfCommit(size)
-						.startOn(
-								rm.getCommits().get(size - 1)
-										.getCommitterIdent().getWhen()
-										.getTime())
-						.lastUpdate(
-								rm.getCommits().get(0).getCommitterIdent()
-										.getWhen().getTime()).build();
+				RepoInfo repoinfo = new RepoInfo.Builder(rm.getAuthor(),
+						rm.getName()).numOfCommit(size)
+						.startOn(rm.firstCommitTime())
+						.lastUpdate(rm.lastCommitTime()).build();
 				return Response.ok(repoinfo).build();
-				
+
 			} else {
-				RepoInfo repoinfo = new RepoInfo.Builder("",
-						rm.getRepositoryName()).build();
+				RepoInfo repoinfo = new RepoInfo.Builder(rm.getAuthor(),
+						rm.getName()).build();
 				return Response.ok(repoinfo).build();
 			}
 
-		} catch (InvalidRemoteException e) {
-			return Response.status(Status.NOT_FOUND).build();
 		} catch (Exception e) {
 			return Response.serverError().build();
 		}
@@ -60,10 +50,18 @@ public class MetricResource {
 	@GET
 	@Path("advancedInfo")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAdvancedInfo() {
-		
-		return Response.ok().build();
+	public Response getAdvancedInfo(@MatrixParam("url") String url,
+			@MatrixParam("rule") int rule) {
+		try {
+			String decodedUrl = URLDecoder.decode(url, "UTF-8");
+			RepositoryAccess rm = new RepositoryAccess(decodedUrl,
+					Rule.fromInt(rule));
+			RepositoryVisitor vistor = new RepositoryVisitor(rm);
+			return Response.ok(vistor.getCommitData()).build();
 
+		} catch (Exception e) {
+			return Response.serverError().build();
+		}
 	}
 
 }

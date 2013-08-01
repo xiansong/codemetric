@@ -1,7 +1,6 @@
 package xian.git;
 
 import japa.parser.JavaParser;
-import japa.parser.ParseException;
 import japa.parser.ast.CompilationUnit;
 
 import java.io.File;
@@ -24,6 +23,7 @@ import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -103,7 +103,7 @@ public final class RepositoryAccess {
 	public RepositoryAccess(final String url, final Rule rule)
 			throws IOException, GitAPIException {
 		this.url = url;
-		File gitDir = new File(rootPath + getRepositoryName());
+		File gitDir = new File(rootPath + getName());
 		if (rule == Rule.OLD) {
 			if (gitDir.exists()) {
 				Git git;
@@ -121,13 +121,12 @@ public final class RepositoryAccess {
 	/**
 	 * Clone the remote Repository to local
 	 */
-	private void gitClone() throws IOException, GitAPIException {
-		File gitDir = new File(rootPath + getRepositoryName());
+	private void gitClone() throws GitAPIException, IOException {
+		File gitDir = new File(rootPath + getName());
 
 		try {
 			Git.cloneRepository().setURI(url)
-					.setDirectory(new File(rootPath + getRepositoryName()))
-					.call();
+					.setDirectory(new File(rootPath + getName())).call();
 		} catch (GitAPIException e) {
 			FileUtils.delete(gitDir, FileUtils.RECURSIVE);
 			throw e;
@@ -142,7 +141,7 @@ public final class RepositoryAccess {
 	 * 
 	 * @return the repository name or null
 	 */
-	public String getRepositoryName() {
+	public String getName() {
 		String name = null;
 		Pattern pattern = Pattern.compile("[a-zA-Z0-9\\.\\-\\_]+(\\.git)$");
 		Matcher matcher = pattern.matcher(url);
@@ -159,6 +158,7 @@ public final class RepositoryAccess {
 	 */
 	public List<RevCommit> getCommits() {
 		RevWalk walk = new RevWalk(repository);
+		walk.setRetainBody(false);
 		try {
 			walk.markStart(walk.parseCommit(repository.resolve(Constants.HEAD)));
 		} catch (Exception e) {
@@ -171,11 +171,54 @@ public final class RepositoryAccess {
 		return revCommits;
 	}
 
+	public long lastCommitTime() {
+		RevWalk walk = new RevWalk(repository);
+		try {
+			RevCommit c = walk.parseCommit(repository.resolve(Constants.HEAD));
+			if (c == null)
+				return 0L;
+			return c.getCommitterIdent().getWhen().getTime();
+		} catch (Exception e) {
+			return 0L;
+		} finally {
+			walk.dispose();
+		}
+	}
+
+	public String getAuthor() {
+		RevWalk walk = new RevWalk(repository);
+		try {
+			RevCommit c = walk.parseCommit(repository.resolve(Constants.HEAD));
+			if (c == null)
+				return "";
+			return c.getAuthorIdent().getName();
+		} catch (Exception e) {
+			return "";
+		} finally {
+			walk.dispose();
+		}
+	}
+
+	public long firstCommitTime() {
+		RevWalk walk = new RevWalk(repository);
+		try {
+			RevCommit root = walk.parseCommit(repository
+					.resolve(Constants.HEAD));
+			walk.sort(RevSort.REVERSE);
+			walk.markStart(root);
+			RevCommit c = walk.next();
+			if (c == null)
+				return 0L;
+			return c.getCommitterIdent().getWhen().getTime();
+		} catch (Exception e) {
+			return 0L;
+		} finally {
+			walk.dispose();
+		}
+	}
+
 	/**
-	 * Gets the list of java files for a revision as inputstream.
-	 * 
-	 * @throws ParseException
-	 * 
+	 * Gets the list of java files for a revision as a compilation unit.
 	 */
 	public List<CompilationUnit> getJavaCompilationUnit(final RevCommit c)
 			throws MissingObjectException, IncorrectObjectTypeException,
@@ -193,6 +236,7 @@ public final class RepositoryAccess {
 				CompilationUnit cu = JavaParser.parse(in, "UTF8");
 				filesList.add(cu);
 			} catch (Exception e) {
+				// ignore individual file with error
 			}
 		}
 

@@ -39,6 +39,8 @@ public final class CommitVisitor implements Callable<CommitData> {
 		cu.accept(visitor, null);
 
 		UserClass uc = visitor.getUserClass();
+		visitor = null;
+		
 		if (uc != null)
 			ucs.add(uc);
 	}
