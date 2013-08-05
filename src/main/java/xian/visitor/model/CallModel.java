@@ -23,8 +23,8 @@ public final class CallModel {
 		// default value of metric
 		private int callerCyclo = 1;
 		private int calleeCyclo = 1;
-		private double callerVolume = 1;
-		private double calleeVolume = 1;
+		private double callerVolume = 1.0;
+		private double calleeVolume = 1.0;
 
 		public Builder callerCyclo(final int cyclo) {
 			callerCyclo = cyclo;
@@ -77,7 +77,7 @@ public final class CallModel {
 		return sb.toString();
 	}
 
-	//lazy initialized, cache hashcode
+	// lazy initialized, cache hashcode
 	private volatile int hashCode;
 
 	@Override

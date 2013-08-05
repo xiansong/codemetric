@@ -169,10 +169,9 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	}
 
 	public double getVolume() {
-		if (getVocabulary() == 0)
-			return 1;
-		return getProgramLength()
-				* (Math.log(getVocabulary()) / Math.log(2.0d));
+		if (getVocabulary() == 0 || getProgramLength() == 0)
+			return 1.0;
+		return getProgramLength() * (Math.log(getVocabulary()) / Math.log(2.0));
 	}
 
 }

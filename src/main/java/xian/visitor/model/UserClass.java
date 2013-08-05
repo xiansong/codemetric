@@ -17,6 +17,10 @@ public final class UserClass {
 	private Map<String, String> fields;
 	private List<UserMethod> definedMethods;
 	private List<ImportDeclaration> imports;
+	
+	private int cyclo;
+	private double volume;
+	private double ratio;
 
 	public UserClass(final PackageDeclaration packageDeclaration,
 			final String name, List<ImportDeclaration> imports) {
@@ -77,19 +81,36 @@ public final class UserClass {
 	}
 
 	public int getCyclomatic() {
-		int sum = 0;
+		if (cyclo != 0)
+			return cyclo;
 		for (UserMethod um : definedMethods) {
-			sum += um.getCylomatic();
+			cyclo += um.getCylomatic();
+			volume += um.getVolume();
+			ratio += um.getRatio();
 		}
-		return sum;
+		return cyclo;
 	}
 
 	public double getVolume() {
-		double sum = 0;
+		if (volume != 0.0)
+			return volume;
 		for (UserMethod um : definedMethods) {
-			sum += um.getVolume();
+			cyclo += um.getCylomatic();
+			volume += um.getVolume();
+			ratio += um.getRatio();
 		}
-		return sum;
+		return volume;
+	}
+
+	public double getRatio() {
+		if (ratio != 0.0)
+			return ratio;
+		for (UserMethod um : definedMethods) {
+			cyclo += um.getCylomatic();
+			volume += um.getVolume();
+			ratio += um.getRatio();
+		}
+		return ratio;
 	}
 
 }

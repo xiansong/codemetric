@@ -1,13 +1,9 @@
 package xian.rest.model;
 
-import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public final class RepoInfo implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+public final class RepoInfo {
 
 	private final String author;
 
@@ -32,8 +28,8 @@ public final class RepoInfo implements Serializable {
 		private final String name;
 
 		private int numberOfCommit = 0;
-		private long startOn = 0;
-		private long lastUpdate = 0;
+		private long startOn = 0L;
+		private long lastUpdate = 0L;
 
 		public Builder numOfCommit(final int numOfCommit) {
 			numberOfCommit = numOfCommit;

@@ -41,6 +41,7 @@ public class RepositoryVisitor {
 		TDoubleList cycloList = new TDoubleArrayList();
 		TDoubleList volumeList = new TDoubleArrayList();
 		TDoubleList callList = new TDoubleArrayList();
+		TDoubleList ratioList = new TDoubleArrayList();
 
 		for (Future<CommitData> f : futures) {
 			try {
@@ -48,14 +49,16 @@ public class RepositoryVisitor {
 				cycloList.add(cd.getCyclomatics());
 				volumeList.add(cd.getVolumes());
 				callList.add(cd.getCms().size());
+				ratioList.add(cd.getRatio());
 			} catch (Exception e) {
 			}
 		}
-		
+
 		service.shutdown();
 
-		RevInfo info = new RevInfo(cycloList.toArray(), volumeList.toArray(),
-				callList.toArray());
+		RevInfo info = new RevInfo.Builder().cyclo(cycloList.toArray())
+				.volume(volumeList.toArray()).call(callList.toArray())
+				.ratio(ratioList.toArray()).build();
 		return info;
 
 	}

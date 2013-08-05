@@ -9,6 +9,7 @@ public final class CommitData {
 
 	private int cyclo;
 	private double volume;
+	private double ratio;
 
 	public Set<CallModel> getCms() {
 		return cms;
@@ -32,19 +33,32 @@ public final class CommitData {
 		for (UserClass uc : ucs) {
 			cyclo += uc.getCyclomatic();
 			volume += uc.getVolume();
+			ratio += uc.getRatio();
 		}
 		return cyclo;
 	}
 
 	public double getVolumes() {
-		if (volume != 0.0d) {
+		if (volume != 0.0) {
 			return volume;
 		}
 		for (UserClass uc : ucs) {
 			cyclo += uc.getCyclomatic();
 			volume += uc.getVolume();
+			ratio += uc.getRatio();
 		}
 		return volume;
+	}
+	
+	public double getRatio(){
+		if(ratio != 0.0)
+			return ratio;
+		for(UserClass uc : ucs){
+			cyclo += uc.getCyclomatic();
+			volume += uc.getVolume();
+			ratio += uc.getRatio();
+		}
+		return ratio;
 	}
 
 }

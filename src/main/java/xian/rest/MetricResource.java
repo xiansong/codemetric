@@ -14,7 +14,7 @@ import xian.git.RepositoryAccess.Rule;
 import xian.rest.model.RepoInfo;
 import xian.visitor.RepositoryVisitor;
 
-@Path("metric")
+@Path("/metric")
 public class MetricResource {
 
 	@GET
@@ -49,7 +49,7 @@ public class MetricResource {
 
 	@GET
 	@Path("advancedInfo")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
 	public Response getAdvancedInfo(@MatrixParam("url") String url,
 			@MatrixParam("rule") int rule) {
 		try {

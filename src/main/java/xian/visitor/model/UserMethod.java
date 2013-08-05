@@ -24,7 +24,7 @@ public final class UserMethod {
 
 	private List<MethodCallExpr> calls;
 
-	public UserMethod(final String methodName,final String returnType) {
+	public UserMethod(final String methodName, final String returnType) {
 		this.methodName = methodName;
 		this.returnType = returnType;
 	}
@@ -75,6 +75,12 @@ public final class UserMethod {
 
 	public void setVariables(final Map<String, String> variables) {
 		this.variables = variables;
+	}
+
+	public double getRatio() {
+		if (volume == 0.0)
+			return 1;
+		return cylomatic / volume;
 	}
 
 }

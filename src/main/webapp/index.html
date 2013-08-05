@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+
+ <head>
+	<meta charset="utf-8" />
+	<title>Dashboard Java Metric</title>
+	<link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" />
+	<script src="js/jquery-2.0.3.min.js"></script>
+
+	<script type="text/javascript">
+		$(document)
+				.ready(
+						function() {
+						
+							$(".tablesorter").tablesorter(); 
+						
+							$(".tab_content").hide(); 
+						
+							$("#anl_btn").hide();
+						
+							$("#acc_btn")
+									.click(
+											function() {
+												var url = $("#url_in").val();
+												if(validateURL(url)){
+													var encoded_url = encodeURIComponent(url);
+													var URL = "http://localhost:8080/codemetric/rest/metric/basicInfo;url="+encoded_url+";rule="+ $("#access_rule").val();
+													$.getJSON(URL).done(function(data){
+														$("#name").text(data.name);
+														$("#author").text(data.author);
+														$("#commits").text(data.numberOfCommit);
+														var startD = new Date(data.startOn);
+														$("#created").text(startD.getDate() + "-" + (startD.getMonth()+1) + "-" + startD.getFullYear());
+														var lastD = new Date(data.lastUpdate);
+														$("#last").text(lastD.getDate() + "-" + (lastD.getMonth() + 1) + "-" + lastD.getFullYear());
+														$("#acc_btn").hide();
+														$("#anl_btn").show();
+														}).fail(function(jqxhr, textStatus, error){
+															alert(error);		
+														});
+												}else{
+													alert(url+ " is not a valid git url (requires https).");
+												}
+											});
+						
+							$("#res_btn").click(function(){
+								$("#name").empty();
+								$("#author").empty();
+								$("#commits").empty();
+								$("#created").empty();
+								$("#last").empty();
+								$("#url_in").val("");
+								$("#access_rule").val($("#access_rule option:first").val());
+								$("#anl_btn").hide();
+								$("#acc_btn").show();
+								$(".tab_content").empty();
+								$(".tab_content").hide();
+								$("ul.tabs li").removeClass("active").show();
+								$("ul.tabs li").off("click");
+							
+							});
+						
+							$("#anl_btn").click(function(){
+								var url = $("#url_in").val();
+								var encoded_url = encodeURIComponent(url);
+								var URL = "http://localhost:8080/codemetric/rest/metric/advancedInfo;url="+encoded_url+";rule="+ $("#access_rule").val();
+								$.getJSON(URL).done(function(data){
+									$("#acc_btn").hide();
+									$("#anl_btn").hide();
+									$(".tab_content:first").show(); 
+									$("ul.tabs li:first").addClass("active").show();
+									
+									var cycloVar = "Cyclomatic ["+data.cycloVar.toFixed(4)+"]";
+ 									var volumeVar = "Halstead Volume ["+data.volumeVar.toFixed(4)+"]";
+									var callVar = "Call ["+data.callVar.toFixed(4)+"]";
+									var ratioVar = "Density ["+data.ratioVar.toFixed(4)+"]";
+								
+									var dpsCyclo = [];
+									var cyclo = data.cyclo;
+									for(var i = cyclo.length-1; i>=0; i--){
+										var obj = {"y": cyclo[i]};
+										dpsCyclo.push(obj)
+									}
+								
+									var dpsVolume = [];
+									var volume = data.volume;
+									for(var i = volume.length-1; i>=0; i--){
+										var obj = {"y": volume[i]};
+										dpsVolume.push(obj)
+									}
+								
+									var dpsCall = [];
+									var call = data.call;
+									for(var i = call.length-1; i>=0; i--){
+										var obj = {"y": call[i]};
+										dpsCall.push(obj);
+									}
+									
+									var dpsRatio = [];
+									var ratio = data.ratio;
+									for(var i = ratio.length-1; i>=0; i--){
+										var obj = {"y": ratio[i]};
+										dpsRatio.push(obj);
+									}
+								
+									drawChart("tab1", cycloVar, dpsCyclo);
+									drawChart("tab2", volumeVar, dpsVolume);
+									drawChart("tab3", callVar, dpsCall);
+									drawChart("tab4", ratioVar, dpsRatio);
+								
+									$("ul.tabs li").click(function() {
+										$("ul.tabs li").removeClass("active"); 
+										$(this).addClass("active"); 
+										$(".tab_content").hide(); 
+
+										var activeTab = $(this).find("a").attr("href");
+										emptyCharts();
+										$(activeTab).fadeIn();
+										switch (activeTab){
+											case "#tab1": 
+												drawChart("tab1", cycloVar, dpsCyclo);
+												break;
+											case "#tab2":
+												drawChart("tab2", volumeVar, dpsVolume);
+												break;
+											case "#tab3":
+												drawChart("tab3", callVar, dpsCall);
+												break;
+											case "#tab4":
+												drawChart("tab4", ratioVar, dpsRatio);
+												break;
+											case "#tab5":
+												$(".tab_content").show(); 
+												drawChart("tab1", cycloVar, dpsCyclo);
+												drawChart("tab2", volumeVar, dpsVolume);
+												drawChart("tab3", callVar, dpsCall);
+												drawChart("tab4", ratioVar, dpsRatio);
+												break;		
+										}
+										return false;
+									}); //end $("ul.tabs li").click
+								});	//end getJSON done						
+							}); //end $("#anl_btn").click
+			
+						});
+	
+		function emptyCharts(){
+				$(".tab_content").empty();
+		}
+	
+		function drawChart(container, title, dps){
+			var chart = new CanvasJS.Chart(container,{
+				title: {text: title},
+				data: [{type: "spline", dataPoints: dps}]
+			});
+			chart.render();
+		}
+	
+		function validateURL(textval) {
+			var urlregex = new RegExp("^(https:\/\/github\.com\/)[a-zA-Z][a-zA-Z0-9\.\-\_]+\/[a-zA-Z0-9\.\-\_]+(\.git)$");
+			return urlregex.test(textval);
+		}
+	</script>
+
+	<script type="text/javascript">
+    	$(function(){
+        	$('.column').equalHeight();
+    	});
+	</script>
+
+ </head>
+
+<body>
+
+	<header id="header">
+		<hgroup>
+			<h1 class="site_title">
+				<a href="index.html">Java Metric Demo</a>
+			</h1>
+		</hgroup>
+	</header>
+	<!-- end of header bar -->
+
+	<section id="secondary_bar"></section>
+	<!-- end of secondary bar -->
+
+
+	<section id="main" class="column">
+
+		<article class="module width_full">
+			<header>
+				<h3 id="init"
+					title="Clone or show basic information of a repository.">Initialization</h3>
+			</header>
+			
+			<div class="module_content">
+				<fieldset style="width: 40%; float: left;">
+					<!-- to make two field float next to one another, adjust values accordingly -->
+					<label>Remote URL</label> <input id="url_in" type="text"
+						style="width: 85%;">
+				</fieldset>
+
+				<table class="tablesorter" style="width: 55%; margin-left: 20px; float: left;">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Author</th>
+							<th>Commits</th>
+							<th>Created</th>
+							<th>Last Update</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><p id="name"></p></td>
+							<td><p id="author"></p></td>
+							<td><p id="commits"></p></td>
+							<td><p id="created"></p></td>
+							<td><p id="last"></p></td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="clear"></div>
+			</div>
+			
+			<footer>
+				<div class="submit_link">
+					<select id="access_rule">
+						<option value="0">Old</option>
+						<option value="1">Update</option>
+					</select> <input type="button" value="Access" class="alt_btn" id="acc_btn" />
+					<input type="button" value="Reset" id="res_btn" /> 
+					<input type="button" value="Analyse" id="anl_btn" />
+
+				</div>
+			</footer>
+			
+		</article>
+
+		<article class="module width_full">
+			<header>
+				<h3 class="tabs_involved">Metric Infomation</h3>
+				<ul class="tabs">
+					<li><a href="#tab1">Cyclomatic</a></li>
+					<li><a href="#tab2">Volume</a></li>
+					<li><a href="#tab3">Call</a></li>
+					<li><a href="#tab4">Density</a></li>
+					<li><a href="#tab5">Expand</a></li>
+				</ul>
+			</header>
+			
+			<div class="tab_container">
+				<div id="tab1" class="tab_content"></div>
+				<div id="tab2" class="tab_content"></div>
+				<div id="tab3" class="tab_content"></div>
+				<div id="tab4" class="tab_content"></div>
+			</div>
+		</article>
+
+		<div class="spacer"></div>
+	</section>
+
+	<script src="js/jquery.equalHeight.js"></script>
+	<script src="js/hideshow.js"></script>
+	<script src="js/jquery.equalHeight.js"></script>
+	<script src="js/canvasjs.min.js"></script>
+	<script src="js/jquery.tablesorter.min.js"></script>
+
+</body>
+
+</html>
