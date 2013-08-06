@@ -1,5 +1,7 @@
 package xian.visitor;
 
+import java.util.List;
+
 import japa.parser.ast.expr.BinaryExpr;
 import japa.parser.ast.expr.ConditionalExpr;
 import japa.parser.ast.expr.Expression;
@@ -89,7 +91,7 @@ public final class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 * if(condition-expr){then-stmt}else-if(){}|else{else-stmt}, Visit the
 	 * condition-expr, then-stmt with the current visitor. When there is a
 	 * hidden if-stmt, recursively visit the if-stmt, else visit the else-stmt
-	 * with the current visitor 
+	 * with the current visitor
 	 */
 	private void visitIfStmt(final IfStmt n) {
 		number++;
@@ -101,7 +103,7 @@ public final class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 			if (IfStmt.class.isAssignableFrom(elseStmt.getClass())) {
 				visitIfStmt((IfStmt) elseStmt);
 			} else {
-				n.getElseStmt().accept(this, null);
+				elseStmt.accept(this, null);
 			}
 		}
 	}
@@ -113,13 +115,15 @@ public final class CyclomaticVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final SwitchStmt n, final Void arg) {
-		if (n.getEntries() != null) {
-			number += n.getEntries().size();
+		List<SwitchEntryStmt> entries = n.getEntries();
+		if (entries != null) {
+			int size = entries.size();
+			number += size;
 			// label of default entry will be null, we don't count default
-			if (n.getEntries().get(n.getEntries().size() - 1).getLabel() == null) {
+			if (entries.get(size - 1).getLabel() == null) {
 				number -= 1;
 			}
-			for (SwitchEntryStmt switchEntryStmt : n.getEntries()) {
+			for (SwitchEntryStmt switchEntryStmt : entries) {
 				switchEntryStmt.accept(this, arg);
 			}
 		}

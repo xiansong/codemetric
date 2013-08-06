@@ -40,7 +40,7 @@ public final class CommitVisitor implements Callable<CommitData> {
 
 		UserClass uc = visitor.getUserClass();
 		visitor = null;
-		
+
 		if (uc != null)
 			ucs.add(uc);
 	}
@@ -66,6 +66,10 @@ public final class CommitVisitor implements Callable<CommitData> {
 		return cd;
 	}
 
+	/**
+	 * Check the user-defined method invocation on the fly; Symbol table
+	 * consists of some collections.
+	 */
 	private CallModel checkCallModel(final MethodCallExpr mc,
 			final UserMethod um, final UserClass uc) {
 		// check if the callee variable is defined in method parameters
