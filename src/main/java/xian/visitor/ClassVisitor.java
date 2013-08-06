@@ -21,20 +21,15 @@ import com.google.common.collect.Maps;
  */
 public final class ClassVisitor extends VoidVisitorAdapter<Void> {
 
-	private PackageDeclaration packageDeclaration;
+	private final PackageDeclaration packageDeclaration;
 
-	private List<ImportDeclaration> imports;
+	private final List<ImportDeclaration> imports;
 
 	private UserClass userClass;
 
-	public ClassVisitor() {
-	}
-
-	public void setPkgDeclaration(final PackageDeclaration packageDeclaration) {
+	public ClassVisitor(final PackageDeclaration packageDeclaration,
+			final List<ImportDeclaration> imports) {
 		this.packageDeclaration = packageDeclaration;
-	}
-
-	public void setImports(final List<ImportDeclaration> imports) {
 		this.imports = imports;
 	}
 
@@ -59,7 +54,7 @@ public final class ClassVisitor extends VoidVisitorAdapter<Void> {
 	/** The Class FieldVisitor. */
 	private static final class FieldVisitor extends VoidVisitorAdapter<Void> {
 
-		private Map<String, String> fields;
+		private final Map<String, String> fields;
 
 		public FieldVisitor() {
 			fields = Maps.newHashMap();
@@ -80,7 +75,7 @@ public final class ClassVisitor extends VoidVisitorAdapter<Void> {
 					fields.put(v.getId().toString(), n.getType().toString());
 			}
 		}
-		
+
 	}
 
 }

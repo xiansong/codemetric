@@ -22,7 +22,7 @@ import com.google.common.collect.Maps;
  */
 public final class MethodVisitor extends VoidVisitorAdapter<Void> {
 
-	private List<UserMethod> methodList;
+	private final List<UserMethod> methodList;
 
 	public MethodVisitor() {
 		methodList = Lists.newArrayList();
@@ -72,7 +72,7 @@ public final class MethodVisitor extends VoidVisitorAdapter<Void> {
 	private static final class ParameterVisitor extends VoidVisitorAdapter<Void> {
 
 		/** The parameters, name as key and type as value, won't be null. */
-		private Map<String, String> parameters;
+		private final Map<String, String> parameters;
 
 		public ParameterVisitor() {
 			parameters = Maps.newHashMap();
@@ -102,7 +102,7 @@ public final class MethodVisitor extends VoidVisitorAdapter<Void> {
 	private static final class VariableVisitor extends VoidVisitorAdapter<Void> {
 
 		/** The variables, name as key and type as value, won't be null. */
-		private Map<String, String> variables;
+		private final Map<String, String> variables;
 
 		public VariableVisitor() {
 			variables = Maps.newHashMap();
@@ -138,7 +138,7 @@ public final class MethodVisitor extends VoidVisitorAdapter<Void> {
 		 * The calls is the whole call expression. It will be analyzed when a
 		 * symbol table is built.
 		 */
-		private List<MethodCallExpr> calls;
+		private final List<MethodCallExpr> calls;
 
 		public CallVisitor() {
 			calls = Lists.newArrayList();

@@ -33,19 +33,19 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	}
 
 	/** The oprAsgn stores unique assign operators and their frequencies. */
-	private TObjectIntMap<AssignExpr.Operator> oprAsgn;
+	private final TObjectIntMap<AssignExpr.Operator> oprAsgn;
 
 	/** The oprBin stores unique binary operators and their frequencies. */
-	private TObjectIntMap<BinaryExpr.Operator> oprBin;
+	private final TObjectIntMap<BinaryExpr.Operator> oprBin;
 
 	/** The oprUnary stores unique unary operators and their frequencies. */
-	private TObjectIntMap<UnaryExpr.Operator> oprUnary;
+	private final TObjectIntMap<UnaryExpr.Operator> oprUnary;
 
 	/** The extraOpr stores unique extra operators and their frequencies. */
-	private TObjectIntMap<ExtraOperator> extraOpr;
+	private final TObjectIntMap<ExtraOperator> extraOpr;
 
 	/** The opd stores hashcode of unique operands and their frequencies. */
-	private TObjectIntMap<String> opd;
+	private final TObjectIntMap<String> opd;
 
 	public HalsteadVisitor() {
 		oprAsgn = new TObjectIntHashMap<AssignExpr.Operator>();

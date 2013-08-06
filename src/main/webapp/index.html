@@ -112,10 +112,6 @@
 									}
 								
 									drawChart("tab1", cycloVar, dpsCyclo);
-									drawChart("tab2", volumeVar, dpsVolume);
-									drawChart("tab3", callVar, dpsCall);
-									drawChart("tab4", ratioVar, dpsRatio);
-									drawChart("tab5", interactionVar, dspInteraction);
 								
 									$("ul.tabs li").click(function() {
 										$("ul.tabs li").removeClass("active"); 
@@ -133,10 +129,10 @@
 												drawChart("tab2", volumeVar, dpsVolume);
 												break;
 											case "#tab3":
-												drawChart("tab3", callVar, dpsCall);
+												drawChart("tab3", ratioVar, dpsRatio);
 												break;
 											case "#tab4":
-												drawChart("tab4", ratioVar, dpsRatio);
+												drawChart("tab4", callVar, dpsCall);
 												break;
 											case "#tab5":
 												drawChart("tab5", interactionVar, dspInteraction);
@@ -145,8 +141,8 @@
 												$(".tab_content").show(); 
 												drawChart("tab1", cycloVar, dpsCyclo);
 												drawChart("tab2", volumeVar, dpsVolume);
-												drawChart("tab3", callVar, dpsCall);
-												drawChart("tab4", ratioVar, dpsRatio);
+												drawChart("tab3", ratioVar, dpsRatio);
+												drawChart("tab4", callVar, dpsCall);
 												drawChart("tab5", interactionVar, dspInteraction);
 												break;		
 										}
@@ -198,14 +194,13 @@
 
 		<article class="module width_full">
 			<header>
-				<h3 id="init"
-					title="Clone or show basic information of a repository.">Initialization</h3>
+				<h3>Initialization</h3>
 			</header>
 			
 			<div class="module_content">
 				<fieldset id="fieldsetURL">
 					<label>Remote URL</label> 
-					<input id="url_in" type="text">
+					<input id="url_in" type="text" />
 				</fieldset>
 
 				<table class="tablesorter" id="tableBasicInfo">
@@ -237,10 +232,10 @@
 					<select id="access_rule">
 						<option value="0">Old</option>
 						<option value="1">Update</option>
-					</select> <input type="button" value="Access" class="alt_btn" id="acc_btn" />
+					</select> 
+					<input type="button" value="Access" class="alt_btn" id="acc_btn" />
 					<input type="button" value="Reset" id="res_btn" /> 
 					<input type="button" value="Analyse" id="anl_btn" />
-
 				</div>
 			</footer>
 			
@@ -252,8 +247,8 @@
 				<ul class="tabs">
 					<li><a href="#tab1">Cyclomatic</a></li>
 					<li><a href="#tab2">Volume</a></li>
-					<li><a href="#tab3">Call</a></li>
-					<li><a href="#tab4">Density</a></li>
+					<li><a href="#tab3">Density</a></li>
+					<li><a href="#tab4">Call</a></li>
 					<li><a href="#tab5">Interaction</a>
 					<li><a href="#tab6">Expand</a></li>
 				</ul>

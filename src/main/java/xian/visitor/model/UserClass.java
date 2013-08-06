@@ -12,11 +12,11 @@ import java.util.Map;
  */
 public final class UserClass {
 
-	private PackageDeclaration packageDeclaration;
-	private String name;
+	private final PackageDeclaration packageDeclaration;
+	private final String name;
+	private final List<ImportDeclaration> imports;
 	private Map<String, String> fields;
 	private List<UserMethod> definedMethods;
-	private List<ImportDeclaration> imports;
 	
 	private int cyclo;
 	private double volume;

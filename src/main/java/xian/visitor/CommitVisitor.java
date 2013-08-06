@@ -19,8 +19,8 @@ import xian.visitor.model.UserMethod;
 
 public final class CommitVisitor implements Callable<CommitData> {
 
-	private List<UserClass> ucs;
-	private Set<CallModel> cms;
+	private final List<UserClass> ucs;
+	private final Set<CallModel> cms;
 
 	public CommitVisitor(final List<CompilationUnit> cus) {
 		ucs = Lists.newArrayList();
@@ -31,16 +31,11 @@ public final class CommitVisitor implements Callable<CommitData> {
 	}
 
 	private void visit(final CompilationUnit cu) {
-
-		ClassVisitor visitor = new ClassVisitor();
-		visitor.setPkgDeclaration(cu.getPackage());
-		visitor.setImports(cu.getImports());
-
+		ClassVisitor visitor = new ClassVisitor(cu.getPackage(),
+				cu.getImports());
 		cu.accept(visitor, null);
-
 		UserClass uc = visitor.getUserClass();
 		visitor = null;
-
 		if (uc != null)
 			ucs.add(uc);
 	}
@@ -50,25 +45,21 @@ public final class CommitVisitor implements Callable<CommitData> {
 
 		for (UserClass uc : ucs) {
 			for (UserMethod um : uc.getDefinedMethods()) {
-				// System.out.println(um.getName());
 				for (MethodCallExpr mc : um.getCalls()) {
 					CallModel cm = checkCallModel(mc, um, uc);
 					if (cm != null) {
 						cms.add(cm);
 					}
 				}
-
 			}
 		}
-		CommitData cd = new CommitData();
-		cd.setCms(cms);
-		cd.setUcs(ucs);
+		CommitData cd = new CommitData(ucs, cms);
 		return cd;
 	}
 
 	/**
-	 * Check the user-defined method invocation on the fly; Symbol table
-	 * consists of some collections.
+	 * Construct symbol table on the fly and check user-defined method
+	 * invocation.
 	 */
 	private CallModel checkCallModel(final MethodCallExpr mc,
 			final UserMethod um, final UserClass uc) {
@@ -109,6 +100,7 @@ public final class CommitVisitor implements Callable<CommitData> {
 					return null;
 				}
 			}
+			// caller and callee classes may be in the same package
 			for (UserClass ucc : ucs) {
 				if (ucc.getName().equals(
 						um.getParameters().get(mc.getScope().toString()))) {
@@ -168,6 +160,7 @@ public final class CommitVisitor implements Callable<CommitData> {
 					return null;
 				}
 			}
+			// caller and callee classes may be in the same package
 			for (UserClass ucc : ucs) {
 				if (ucc.getName().equals(
 						um.getVariables().get(mc.getScope().toString()))) {
@@ -221,6 +214,7 @@ public final class CommitVisitor implements Callable<CommitData> {
 					return null;
 				}
 			}
+			// caller and callee classes may be in the same package
 			for (UserClass ucc : ucs) {
 				if (ucc.getName().equals(mc.getName())) {
 					UserMethod callee = ucc.getUserMethod(mc.getName());

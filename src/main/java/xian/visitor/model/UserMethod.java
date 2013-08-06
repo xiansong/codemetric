@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public final class UserMethod {
 
-	private String methodName;
+	private final String methodName;
 
-	private String returnType;
+	private final String returnType;
 
 	private int cylomatic;
 

@@ -87,7 +87,7 @@ public final class RepositoryAccess {
 		rootPath = sb.toString();
 	}
 
-	private String url;
+	private final String url;
 
 	private Repository repository;
 

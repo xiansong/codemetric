@@ -16,7 +16,7 @@ public final class CallModel {
 	/**
 	 * Nested class to build an instance of CallModel.
 	 */
-	public static class Builder {
+	public static final class Builder {
 		private final String caller;
 		private final String callee;
 

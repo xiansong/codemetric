@@ -16,9 +16,9 @@ import xian.visitor.model.CommitData;
 
 import com.google.common.collect.Lists;
 
-public class RepositoryVisitor {
+public final class RepositoryVisitor {
 
-	private RepositoryAccess accesser;
+	private final RepositoryAccess accesser;
 
 	public RepositoryVisitor(final RepositoryAccess a) {
 		accesser = a;
