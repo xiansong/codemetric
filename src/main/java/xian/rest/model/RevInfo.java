@@ -1,6 +1,5 @@
 package xian.rest.model;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.math3.stat.StatUtils;
@@ -13,10 +12,12 @@ public final class RevInfo {
 	private final double[] volume;
 	private final double[] call;
 	private final double[] ratio;
+	private final double[] interaction;
 	private final double cycloVar;
 	private final double volumeVar;
 	private final double callVar;
 	private final double ratioVar;
+	private final double interactionVar;
 
 	private RevInfo(Builder builder) {
 		StandardDeviation sd = new StandardDeviation(true);
@@ -28,6 +29,8 @@ public final class RevInfo {
 		callVar = sd.evaluate(call) / StatUtils.mean(call);
 		ratio = builder.ratio;
 		ratioVar = sd.evaluate(ratio) / StatUtils.mean(ratio);
+		interaction = builder.interaction;
+		interactionVar = sd.evaluate(interaction) / StatUtils.mean(interaction);
 	}
 
 	public static class Builder {
@@ -36,6 +39,7 @@ public final class RevInfo {
 		private double[] volume;
 		private double[] call;
 		private double[] ratio;
+		private double[] interaction;
 
 		public Builder cyclo(final double[] cyclo) {
 			this.cyclo = cyclo;
@@ -57,50 +61,55 @@ public final class RevInfo {
 			return this;
 		}
 
+		public Builder interaction(final double[] interaction) {
+			this.interaction = interaction;
+			return this;
+		}
+
 		public RevInfo build() {
 			return new RevInfo(this);
 		}
 
 	}
 
-	@XmlElement
 	public double[] getCyclo() {
 		return cyclo;
 	}
 
-	@XmlElement
 	public double[] getVolume() {
 		return volume;
 	}
 
-	@XmlElement
 	public double[] getCall() {
 		return call;
 	}
 
-	@XmlElement
 	public double[] getRatio() {
 		return ratio;
 	}
 
-	@XmlElement
+	public double[] getInteraction() {
+		return interaction;
+	}
+
 	public double getCycloVar() {
 		return cycloVar;
 	}
 
-	@XmlElement
 	public double getVolumeVar() {
 		return volumeVar;
 	}
 
-	@XmlElement
 	public double getCallVar() {
 		return callVar;
 	}
 
-	@XmlElement
 	public double getRatioVar() {
 		return ratioVar;
+	}
+
+	public double getInteractionVar() {
+		return interactionVar;
 	}
 
 }

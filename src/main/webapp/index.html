@@ -3,7 +3,7 @@
 
  <head>
 	<meta charset="utf-8" />
-	<title>Dashboard Java Metric</title>
+	<title>Java Metric Site</title>
 	<link rel="stylesheet" href="css/layout.css" type="text/css" media="screen" />
 	<script src="js/jquery-2.0.3.min.js"></script>
 
@@ -74,6 +74,7 @@
  									var volumeVar = "Halstead Volume ["+data.volumeVar.toFixed(4)+"]";
 									var callVar = "Call ["+data.callVar.toFixed(4)+"]";
 									var ratioVar = "Density ["+data.ratioVar.toFixed(4)+"]";
+									var interactionVar = "Interaction ["+data.interactionVar.toFixed(4)+"]";
 								
 									var dpsCyclo = [];
 									var cyclo = data.cyclo;
@@ -102,11 +103,19 @@
 										var obj = {"y": ratio[i]};
 										dpsRatio.push(obj);
 									}
+									
+									var dspInteraction = [];
+									var interaction = data.interaction;
+									for(var i = interaction.length-1; i>=0; i--){
+										var obj = {"y": interaction[i]};
+										dspInteraction.push(obj);
+									}
 								
 									drawChart("tab1", cycloVar, dpsCyclo);
 									drawChart("tab2", volumeVar, dpsVolume);
 									drawChart("tab3", callVar, dpsCall);
 									drawChart("tab4", ratioVar, dpsRatio);
+									drawChart("tab5", interactionVar, dspInteraction);
 								
 									$("ul.tabs li").click(function() {
 										$("ul.tabs li").removeClass("active"); 
@@ -114,7 +123,7 @@
 										$(".tab_content").hide(); 
 
 										var activeTab = $(this).find("a").attr("href");
-										emptyCharts();
+										$(".tab_content").empty();
 										$(activeTab).fadeIn();
 										switch (activeTab){
 											case "#tab1": 
@@ -130,11 +139,15 @@
 												drawChart("tab4", ratioVar, dpsRatio);
 												break;
 											case "#tab5":
+												drawChart("tab5", interactionVar, dspInteraction);
+												break;
+											case "#tab6":
 												$(".tab_content").show(); 
 												drawChart("tab1", cycloVar, dpsCyclo);
 												drawChart("tab2", volumeVar, dpsVolume);
 												drawChart("tab3", callVar, dpsCall);
 												drawChart("tab4", ratioVar, dpsRatio);
+												drawChart("tab5", interactionVar, dspInteraction);
 												break;		
 										}
 										return false;
@@ -143,10 +156,6 @@
 							}); //end $("#anl_btn").click
 			
 						});
-	
-		function emptyCharts(){
-				$(".tab_content").empty();
-		}
 	
 		function drawChart(container, title, dps){
 			var chart = new CanvasJS.Chart(container,{
@@ -175,7 +184,7 @@
 	<header id="header">
 		<hgroup>
 			<h1 class="site_title">
-				<a href="index.html">Java Metric Demo</a>
+				<a href="index.html">Java Metric Show</a>
 			</h1>
 		</hgroup>
 	</header>
@@ -194,13 +203,12 @@
 			</header>
 			
 			<div class="module_content">
-				<fieldset style="width: 40%; float: left;">
-					<!-- to make two field float next to one another, adjust values accordingly -->
-					<label>Remote URL</label> <input id="url_in" type="text"
-						style="width: 85%;">
+				<fieldset id="fieldsetURL">
+					<label>Remote URL</label> 
+					<input id="url_in" type="text">
 				</fieldset>
 
-				<table class="tablesorter" style="width: 55%; margin-left: 20px; float: left;">
+				<table class="tablesorter" id="tableBasicInfo">
 					<thead>
 						<tr>
 							<th>Name</th>
@@ -246,7 +254,8 @@
 					<li><a href="#tab2">Volume</a></li>
 					<li><a href="#tab3">Call</a></li>
 					<li><a href="#tab4">Density</a></li>
-					<li><a href="#tab5">Expand</a></li>
+					<li><a href="#tab5">Interaction</a>
+					<li><a href="#tab6">Expand</a></li>
 				</ul>
 			</header>
 			
@@ -255,6 +264,7 @@
 				<div id="tab2" class="tab_content"></div>
 				<div id="tab3" class="tab_content"></div>
 				<div id="tab4" class="tab_content"></div>
+				<div id="tab5" class="tab_content"></div>
 			</div>
 		</article>
 

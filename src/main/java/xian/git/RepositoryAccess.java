@@ -74,7 +74,10 @@ public final class RepositoryAccess {
 		}
 	}
 
-	/** The Constant rootPath for storing local git repositories. */
+	/**
+	 * The Constant rootPath for storing local git repositories. Construction
+	 * may encounter security problem.
+	 */
 	private static final String rootPath;
 
 	static {

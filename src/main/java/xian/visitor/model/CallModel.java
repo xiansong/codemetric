@@ -77,7 +77,7 @@ public final class CallModel {
 		return sb.toString();
 	}
 
-	// lazy initialized, cache hashcode
+	// lazy initialized, cache it
 	private volatile int hashCode;
 
 	@Override
@@ -125,6 +125,10 @@ public final class CallModel {
 
 	public double getCalleeVolume() {
 		return calleeVolume;
+	}
+
+	public double getComplexity() {
+		return callerCyclo * calleeCyclo / (callerVolume + calleeVolume);
 	}
 
 }

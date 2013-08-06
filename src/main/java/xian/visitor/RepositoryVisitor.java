@@ -42,6 +42,7 @@ public class RepositoryVisitor {
 		TDoubleList volumeList = new TDoubleArrayList();
 		TDoubleList callList = new TDoubleArrayList();
 		TDoubleList ratioList = new TDoubleArrayList();
+		TDoubleList interactionList = new TDoubleArrayList();
 
 		for (Future<CommitData> f : futures) {
 			try {
@@ -50,6 +51,7 @@ public class RepositoryVisitor {
 				volumeList.add(cd.getVolumes());
 				callList.add(cd.getCms().size());
 				ratioList.add(cd.getRatio());
+				interactionList.add(cd.getInteraction());
 			} catch (Exception e) {
 			}
 		}
@@ -58,7 +60,8 @@ public class RepositoryVisitor {
 
 		RevInfo info = new RevInfo.Builder().cyclo(cycloList.toArray())
 				.volume(volumeList.toArray()).call(callList.toArray())
-				.ratio(ratioList.toArray()).build();
+				.ratio(ratioList.toArray())
+				.interaction(interactionList.toArray()).build();
 		return info;
 
 	}
