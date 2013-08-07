@@ -49,8 +49,8 @@ public final class RepositoryVisitor {
 				CommitData cd = f.get();
 				cycloList.add(cd.getCyclomatics());
 				volumeList.add(cd.getVolumes());
-				callList.add(cd.getCms().size());
 				ratioList.add(cd.getRatio());
+				callList.add(cd.getCms().size());
 				interactionList.add(cd.getInteraction());
 			} catch (Exception e) {
 			}

@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 public final class CommitData {
-	private List<UserClass> ucs;
-	private Set<CallModel> cms;
+	private final List<UserClass> ucs;
+	private final Set<CallModel> cms;
 
 	private int cyclo;
 	private double volume;

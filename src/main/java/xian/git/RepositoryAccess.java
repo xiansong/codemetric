@@ -107,18 +107,17 @@ public final class RepositoryAccess {
 			throws IOException, GitAPIException {
 		this.url = url;
 		File gitDir = new File(rootPath + getName());
+		Git git = null;
 		if (rule == Rule.OLD) {
-			if (gitDir.exists()) {
-				Git git;
-				git = Git.open(gitDir);
-				repository = git.getRepository();
-			} else {
+			if (!gitDir.exists()) {
 				gitClone();
 			}
 		} else {
 			FileUtils.delete(gitDir, FileUtils.RECURSIVE);
 			gitClone();
 		}
+		git = Git.open(gitDir);
+		repository = git.getRepository();
 	}
 
 	/**
@@ -134,9 +133,6 @@ public final class RepositoryAccess {
 			FileUtils.delete(gitDir, FileUtils.RECURSIVE);
 			throw e;
 		}
-
-		Git git = Git.open(gitDir);
-		repository = git.getRepository();
 	}
 
 	/**
