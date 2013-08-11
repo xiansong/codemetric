@@ -20,8 +20,8 @@ public class MetricResource {
 	@GET
 	@Path("basicInfo")
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	public Response getBasicInfo(@MatrixParam("url") String url,
-			@MatrixParam("rule") int rule) {
+	public Response getBasicInfo(@MatrixParam("url") final String url,
+			@MatrixParam("rule") final int rule) {
 
 		try {
 			String decodedUrl = URLDecoder.decode(url, "UTF-8");
@@ -50,8 +50,8 @@ public class MetricResource {
 	@GET
 	@Path("advancedInfo")
 	@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-	public Response getAdvancedInfo(@MatrixParam("url") String url,
-			@MatrixParam("rule") int rule) {
+	public Response getAdvancedInfo(@MatrixParam("url") final String url,
+			@MatrixParam("rule") final int rule) {
 		try {
 			String decodedUrl = URLDecoder.decode(url, "UTF-8");
 			RepositoryAccess rm = new RepositoryAccess(decodedUrl,

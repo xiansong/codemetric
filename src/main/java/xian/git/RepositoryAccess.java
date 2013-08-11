@@ -89,7 +89,7 @@ public final class RepositoryAccess {
 
 	private final String url;
 
-	private Repository repository;
+	private final Repository repository;
 
 	/**
 	 * Instantiates a new repository access.

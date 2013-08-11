@@ -1,6 +1,5 @@
 package xian.visitor;
 
-import gnu.trove.list.TDoubleList;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
@@ -38,11 +37,11 @@ public final class RepositoryVisitor {
 			}
 		}
 
-		TDoubleList cycloList = new TDoubleArrayList();
-		TDoubleList volumeList = new TDoubleArrayList();
-		TDoubleList callList = new TDoubleArrayList();
-		TDoubleList ratioList = new TDoubleArrayList();
-		TDoubleList interactionList = new TDoubleArrayList();
+		TDoubleArrayList cycloList = new TDoubleArrayList();
+		TDoubleArrayList volumeList = new TDoubleArrayList();
+		TDoubleArrayList callList = new TDoubleArrayList();
+		TDoubleArrayList ratioList = new TDoubleArrayList();
+		TDoubleArrayList interactionList = new TDoubleArrayList();
 
 		for (Future<CommitData> f : futures) {
 			try {

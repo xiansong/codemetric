@@ -1,6 +1,5 @@
 package xian.visitor;
 
-import gnu.trove.map.TObjectIntMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
 import japa.parser.ast.body.VariableDeclarator;
@@ -33,25 +32,25 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	}
 
 	/** The oprAsgn stores unique assign operators and their frequencies. */
-	private final TObjectIntMap<AssignExpr.Operator> oprAsgn;
+	private final int[] oprAsgn;
 
 	/** The oprBin stores unique binary operators and their frequencies. */
-	private final TObjectIntMap<BinaryExpr.Operator> oprBin;
+	private final int[] oprBin;
 
 	/** The oprUnary stores unique unary operators and their frequencies. */
-	private final TObjectIntMap<UnaryExpr.Operator> oprUnary;
+	private final int[] oprUnary;
 
 	/** The extraOpr stores unique extra operators and their frequencies. */
-	private final TObjectIntMap<ExtraOperator> extraOpr;
+	private final int[] extraOpr;
 
 	/** The opd stores hashcode of unique operands and their frequencies. */
-	private final TObjectIntMap<String> opd;
+	private final TObjectIntHashMap<String> opd;
 
 	public HalsteadVisitor() {
-		oprAsgn = new TObjectIntHashMap<AssignExpr.Operator>();
-		oprBin = new TObjectIntHashMap<BinaryExpr.Operator>();
-		oprUnary = new TObjectIntHashMap<UnaryExpr.Operator>();
-		extraOpr = new TObjectIntHashMap<ExtraOperator>();
+		oprAsgn = new int[AssignExpr.Operator.values().length];
+		oprBin = new int[BinaryExpr.Operator.values().length];
+		oprUnary = new int[UnaryExpr.Operator.values().length];
+		extraOpr = new int[ExtraOperator.values().length];
 		opd = new TObjectIntHashMap<String>();
 	}
 
@@ -62,7 +61,7 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	public void visit(final VariableDeclarationExpr n, final Void arg) {
 		for (VariableDeclarator vd : n.getVars()) {
 			if (vd.getInit() != null) {
-				oprAsgn.adjustOrPutValue(AssignExpr.Operator.assign, 1, 1);
+				oprAsgn[AssignExpr.Operator.assign.ordinal()]++;
 				opd.adjustOrPutValue(vd.getId().getName(), 1, 1);
 				vd.accept(this, arg);
 			}
@@ -76,7 +75,7 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final AssignExpr n, final Void arg) {
-		oprAsgn.adjustOrPutValue(n.getOperator(), 1, 1);
+		oprAsgn[n.getOperator().ordinal()]++;
 		opd.adjustOrPutValue(n.getTarget().toString(), 1, 1);
 		opd.adjustOrPutValue(n.getValue().toString(), 1, 1);
 		n.getTarget().accept(this, arg);
@@ -89,7 +88,7 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final BinaryExpr n, final Void arg) {
-		oprBin.adjustOrPutValue(n.getOperator(), 1, 1);
+		oprBin[n.getOperator().ordinal()]++;
 		opd.adjustOrPutValue(n.getLeft().toString(), 1, 1);
 		opd.adjustOrPutValue(n.getRight().toString(), 1, 1);
 		n.getLeft().accept(this, arg);
@@ -102,7 +101,7 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final UnaryExpr n, final Void arg) {
-		oprUnary.adjustOrPutValue(n.getOperator(), 1, 1);
+		oprUnary[n.getOperator().ordinal()]++;
 		opd.adjustOrPutValue(n.getExpr().toString(), 1, 1);
 		n.getExpr().accept(this, arg);
 	}
@@ -112,7 +111,7 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final ConditionalExpr n, final Void arg) {
-		extraOpr.adjustOrPutValue(ExtraOperator.ternary, 1, 1);
+		extraOpr[ExtraOperator.ternary.ordinal()]++;
 		n.getCondition().accept(this, arg);
 		n.getElseExpr().accept(this, arg);
 		n.getThenExpr().accept(this, arg);
@@ -123,26 +122,47 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 	 */
 	@Override
 	public void visit(final InstanceOfExpr n, final Void arg) {
-		extraOpr.adjustOrPutValue(ExtraOperator.instanceOf, 1, 1);
+		extraOpr[ExtraOperator.instanceOf.ordinal()]++;
 	}
 
 	public int getUniqueOperators() {
-		return oprAsgn.size() + oprBin.size() + oprUnary.size()
-				+ extraOpr.size();
+		int sum = 0;
+		for (int i : oprAsgn) {
+			if (i != 0) {
+				sum++;
+			}
+		}
+		for (int i : oprBin) {
+			if (i != 0) {
+				sum++;
+			}
+		}
+		for (int i : oprUnary) {
+			if (i != 0) {
+				sum++;
+			}
+		}
+		for (int i : extraOpr) {
+			if (i != 0) {
+				sum++;
+			}
+		}
+		return sum;
+
 	}
 
 	public int getTotalOperators() {
 		int total = 0;
-		for (Integer i : oprAsgn.values()) {
+		for (int i : oprAsgn) {
 			total += i;
 		}
-		for (Integer i : oprBin.values()) {
+		for (int i : oprBin) {
 			total += i;
 		}
-		for (Integer i : oprUnary.values()) {
+		for (int i : oprUnary) {
 			total += i;
 		}
-		for (Integer i : extraOpr.values()) {
+		for (int i : extraOpr) {
 			total += i;
 		}
 		return total;
@@ -154,7 +174,7 @@ public final class HalsteadVisitor extends VoidVisitorAdapter<Void> {
 
 	public int getTotalOperands() {
 		int total = 0;
-		for (Integer i : opd.values()) {
+		for (int i : opd.values()) {
 			total += i;
 		}
 		return total;
