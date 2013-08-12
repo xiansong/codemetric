@@ -1,8 +1,6 @@
 package xian.visitor;
 
-import gnu.trove.list.array.TDoubleArrayList;
-
-import java.util.List;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -15,6 +13,9 @@ import xian.visitor.model.CommitData;
 
 import com.google.common.collect.Lists;
 
+/**
+ * The Class RepositoryVisitor. Get information of all revision
+ */
 public final class RepositoryVisitor {
 
 	private final RepositoryAccess accesser;
@@ -27,7 +28,8 @@ public final class RepositoryVisitor {
 		int size = accesser.getCommits().size();
 
 		ExecutorService service = Executors.newFixedThreadPool(4);
-		List<Future<CommitData>> futures = Lists.newArrayListWithCapacity(size);
+		ArrayList<Future<CommitData>> futures = Lists
+				.newArrayListWithCapacity(size);
 
 		for (RevCommit c : accesser.getCommits()) {
 			try {
@@ -37,30 +39,29 @@ public final class RepositoryVisitor {
 			}
 		}
 
-		TDoubleArrayList cycloList = new TDoubleArrayList();
-		TDoubleArrayList volumeList = new TDoubleArrayList();
-		TDoubleArrayList callList = new TDoubleArrayList();
-		TDoubleArrayList ratioList = new TDoubleArrayList();
-		TDoubleArrayList interactionList = new TDoubleArrayList();
+		double[] cycloList = new double[size];
+		double[] volumeList = new double[size];
+		double[] callList = new double[size];
+		double[] ratioList = new double[size];
+		double[] interactionList = new double[size];
 
-		for (Future<CommitData> f : futures) {
+		for (int i = 0; i < futures.size(); i++) {
 			try {
-				CommitData cd = f.get();
-				cycloList.add(cd.getCyclomatics());
-				volumeList.add(cd.getVolumes());
-				ratioList.add(cd.getRatio());
-				callList.add(cd.getCms().size());
-				interactionList.add(cd.getInteraction());
+				CommitData cd = futures.get(i).get();
+				cycloList[i] = cd.getCyclomatics();
+				volumeList[i] = cd.getVolumes();
+				ratioList[i] = cd.getRatio();
+				callList[i] = cd.getCms().size();
+				interactionList[i] = cd.getInteraction();
 			} catch (Exception e) {
 			}
 		}
 
 		service.shutdown();
 
-		RevInfo info = new RevInfo.Builder().cyclo(cycloList.toArray())
-				.volume(volumeList.toArray()).call(callList.toArray())
-				.ratio(ratioList.toArray())
-				.interaction(interactionList.toArray()).build();
+		RevInfo info = new RevInfo.Builder().cyclo(cycloList)
+				.volume(volumeList).call(callList).ratio(ratioList)
+				.interaction(interactionList).build();
 		return info;
 
 	}

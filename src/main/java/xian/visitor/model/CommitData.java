@@ -8,10 +8,6 @@ public final class CommitData {
 	private final List<UserClass> ucs;
 	private final Set<CallModel> cms;
 
-	private int cyclo;
-	private double volume;
-	private double ratio;
-
 	public CommitData(final List<UserClass> ucs, final Set<CallModel> cms) {
 		this.ucs = ucs;
 		this.cms = cms;
@@ -26,34 +22,24 @@ public final class CommitData {
 	}
 
 	public int getCyclomatics() {
-		if (cyclo != 0)
-			return cyclo;
+		int cyclo = 0;
 		for (UserClass uc : ucs) {
 			cyclo += uc.getCyclomatic();
-			volume += uc.getVolume();
-			ratio += uc.getRatio();
 		}
 		return cyclo;
 	}
 
 	public double getVolumes() {
-		if (volume != 0.0) {
-			return volume;
-		}
+		double volume =0.0;
 		for (UserClass uc : ucs) {
-			cyclo += uc.getCyclomatic();
 			volume += uc.getVolume();
-			ratio += uc.getRatio();
 		}
 		return volume;
 	}
 
 	public double getRatio() {
-		if (ratio != 0.0)
-			return ratio;
+		double ratio = 0.0;
 		for (UserClass uc : ucs) {
-			cyclo += uc.getCyclomatic();
-			volume += uc.getVolume();
 			ratio += uc.getRatio();
 		}
 		return ratio;

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,17 +34,13 @@ import org.eclipse.jgit.util.FileUtils;
 import com.google.common.collect.Lists;
 
 /**
- * The Class RepositoryAccess.
- * 
- * Create a local repository for access.
+ * The Class RepositoryAccess. Create a local repository for access.
  */
 public final class RepositoryAccess {
 
 	/**
-	 * The Enum Rule.
-	 * 
-	 * The rule for accessing the repository: using the old repository if
-	 * existing or clone the latest one.
+	 * The Enum Rule. The rule for accessing the repository: using the old
+	 * repository if existing or clone the latest one.
 	 */
 	public enum Rule {
 		OLD(0), NEW(1), UNKNOWN(-1);
@@ -162,7 +159,7 @@ public final class RepositoryAccess {
 		} catch (Exception e) {
 			return Collections.emptyList();
 		}
-		List<RevCommit> revCommits = Lists.newArrayList();
+		ArrayList<RevCommit> revCommits = Lists.newArrayList();
 		for (Iterator<RevCommit> itr = walk.iterator(); itr.hasNext();) {
 			revCommits.add(itr.next());
 		}
@@ -221,7 +218,7 @@ public final class RepositoryAccess {
 	public List<CompilationUnit> getJavaCompilationUnit(final RevCommit c)
 			throws MissingObjectException, IncorrectObjectTypeException,
 			CorruptObjectException, IOException {
-		List<CompilationUnit> filesList = Lists.newArrayList();
+		ArrayList<CompilationUnit> filesList = Lists.newArrayList();
 		RevTree tree = c.getTree();
 		TreeWalk treeWalk = new TreeWalk(repository);
 		treeWalk.addTree(tree);
