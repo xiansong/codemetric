@@ -45,7 +45,7 @@ public final class RepositoryVisitor {
 		double[] ratioList = new double[size];
 		double[] interactionList = new double[size];
 
-		for (int i = 0; i < futures.size(); i++) {
+		for (int i = 0; i < size; i++) {
 			try {
 				CommitData cd = futures.get(i).get();
 				cycloList[i] = cd.getCyclomatics();
