@@ -162,7 +162,7 @@
 		}
 	
 		function validateURL(textval) {
-			var urlregex = new RegExp("^(https:\/\/github\.com\/)[a-zA-Z][a-zA-Z0-9\.\-\_]+\/[a-zA-Z0-9\.\-\_]+(\.git)$");
+			var urlregex = /^(https:\/\/github\.com\/)[a-zA-Z][a-zA-Z0-9\.\-\_]+\/[a-zA-Z0-9\.\-\_]+(\.git)$/;
 			return urlregex.test(textval);
 		}
 	</script>

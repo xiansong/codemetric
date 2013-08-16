@@ -1,6 +1,6 @@
 package xian.visitor;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,8 +28,7 @@ public final class RepositoryVisitor {
 		int size = accesser.getCommits().size();
 
 		ExecutorService service = Executors.newFixedThreadPool(4);
-		ArrayList<Future<CommitData>> futures = Lists
-				.newArrayListWithCapacity(size);
+		List<Future<CommitData>> futures = Lists.newArrayListWithCapacity(size);
 
 		for (RevCommit c : accesser.getCommits()) {
 			try {

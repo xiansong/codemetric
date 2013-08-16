@@ -10,13 +10,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -125,7 +126,7 @@ public final class RepositoryAccess {
 		try {
 			Git.cloneRepository().setURI(url)
 					.setDirectory(new File(rootPath + getName())).call();
-		} catch (GitAPIException e) {
+		} catch (InvalidRemoteException | TransportException e) {
 			FileUtils.delete(gitDir, FileUtils.RECURSIVE);
 			throw e;
 		}
@@ -159,7 +160,7 @@ public final class RepositoryAccess {
 		} catch (Exception e) {
 			return Collections.emptyList();
 		}
-		ArrayList<RevCommit> revCommits = Lists.newArrayList();
+		List<RevCommit> revCommits = Lists.newArrayList();
 		for (Iterator<RevCommit> itr = walk.iterator(); itr.hasNext();) {
 			revCommits.add(itr.next());
 		}
@@ -218,7 +219,7 @@ public final class RepositoryAccess {
 	public List<CompilationUnit> getJavaCompilationUnit(final RevCommit c)
 			throws MissingObjectException, IncorrectObjectTypeException,
 			CorruptObjectException, IOException {
-		ArrayList<CompilationUnit> filesList = Lists.newArrayList();
+		List<CompilationUnit> filesList = Lists.newArrayList();
 		RevTree tree = c.getTree();
 		TreeWalk treeWalk = new TreeWalk(repository);
 		treeWalk.addTree(tree);
